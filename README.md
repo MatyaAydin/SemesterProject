@@ -39,3 +39,4 @@ pip install -r requirements.txt
 
 * [Article about spatio-temporal forecasting using GNNs](https://medium.com/data-reply-it-datatech/spatio-temporal-forecasting-using-temporal-graph-neural-networks-f27a8b326e5c)
 * [Electricity dataset from Energy and AI paper](https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014)
+* [Pytorch geometric temporal notebook](https://colab.research.google.com/drive/132hNQ0voOtTVk3I4scbD3lgmPTQub0KR?usp=sharing)
