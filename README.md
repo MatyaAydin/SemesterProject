@@ -2,7 +2,7 @@
 
 ### Title:  Spatial-Temporal Denoising Diffusion Probabilistic Model for Industrial IoTs
 
-Done with IMOS Lab at EPFL
+Done with IMOS Lab at EPFL in collaboration with EWZ Zurich
 
 #### Project stages:
 
@@ -40,3 +40,6 @@ pip install -r requirements.txt
 * [Article about spatio-temporal forecasting using GNNs](https://medium.com/data-reply-it-datatech/spatio-temporal-forecasting-using-temporal-graph-neural-networks-f27a8b326e5c)
 * [Electricity dataset from Energy and AI paper](https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014)
 * [Pytorch geometric temporal notebook](https://colab.research.google.com/drive/132hNQ0voOtTVk3I4scbD3lgmPTQub0KR?usp=sharing)
+* [Repo with links to paper about GNNs for fraud detection](https://github.com/safe-graph/graph-fraud-detection-papers)
+* [DiffSTG repo](https://github.com/wenhaomin/DiffSTG)
+* [TSL doc](https://torch-spatiotemporal.readthedocs.io/en/latest/)
