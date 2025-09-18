@@ -2,3 +2,5 @@ data/
 venv/
 papers/
 corel/
+
+__pycache__/
