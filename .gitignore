@@ -2,5 +2,6 @@ data/
 venv/
 papers/
 corel/
+logs/
 
 __pycache__/

@@ -1,14 +1,14 @@
 from einops import rearrange
 from torch import nn, Tensor
 import torch
-from torch_geometric.nn import GatedGraphConv
 from torch_geometric.utils import to_undirected
 
 from lib.nn.encoders.base_encoder import InputEncoder
 from lib.nn.layers import GraphAnisoConv
 from lib.nn.utils import maybe_cat_emb
-from tsl.nn.blocks import RNN, MLPDecoder, LinearReadout
-from tsl.nn.layers import DiffConv
+from tsl.nn.blocks import RNN
+from tsl.nn.layers import DiffConv, GraphConv
+
 
 from tsl.nn.layers.base import NodeEmbedding
 from tsl.nn.models import BaseModel
@@ -26,7 +26,8 @@ class STGNNEncoder(InputEncoder):
                  gnn_layers: int,
                  force_symmetric: bool = False,
                  exog_size: int = 0,
-                 conv_type: str = "iso",
+                 conv_type: str = "diffconv",
+                 temporal_type: str = "gru",
                  activation: str = 'elu',
                  cat_emb: bool = True,
                  dropout_emb: float = 0.,):
@@ -43,10 +44,11 @@ class STGNNEncoder(InputEncoder):
             input_size=hidden_size,
             hidden_size=hidden_size,
             return_only_last_state=True,
-            n_layers=temporal_layers
+            n_layers=temporal_layers,
+            cell=temporal_type
         )
 
-        if conv_type == "iso":
+        if conv_type == "diffconv":
             self.gnn_layers = nn.ModuleList([
                 DiffConv(in_channels=hidden_size,
                          out_channels=hidden_size,
@@ -54,9 +56,9 @@ class STGNNEncoder(InputEncoder):
                          k=1,
                          activation=activation) for _ in range(gnn_layers)
             ])
-        elif conv_type == "aniso":
+        if conv_type == "graphconv":
             self.gnn_layers = nn.ModuleList([
-                GraphAnisoConv(input_size=hidden_size,
+                GraphConv(input_size=hidden_size,
                                output_size=hidden_size,
                                activation=activation) for _ in range(gnn_layers)
             ])

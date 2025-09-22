@@ -6,7 +6,7 @@
 
 **New**:
 * What horizon should I use for benchmarking ?
-* Hyperparameter optimization: optuna ?
+* Hyperparameter optimization: optuna ? how many layers, neighbors, hidden size, kernel size, activation functions
 
 
 
