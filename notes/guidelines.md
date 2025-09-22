@@ -11,4 +11,4 @@
 
 ## Metrics:
 
-For first benchmark with scalar outpu: MAE, RMSE MAE percentage
+For first benchmark with scalar output: MAE, RMSE MAE percentage

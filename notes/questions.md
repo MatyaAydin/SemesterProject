@@ -5,7 +5,8 @@
 * anomaly detection: how? must it be the same architecture as the one for forecasting ? See later
 
 **New**:
-* How do I compute the distance between two sensors ?
+* What horizon should I use for benchmarking ?
+* Hyperparameter optimization: optuna ?
 
 
 

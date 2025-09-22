@@ -16,10 +16,11 @@ Done with IMOS Lab at EPFL in collaboration with EWZ Zurich
 
 ### Dependencies
 
-Create a virtual environment:
+Create and activate virtual environment:
 ```bash
 
 python3 -m venv venv
+.\venv\Scripts\activate
 ```
 Install packages
 ```

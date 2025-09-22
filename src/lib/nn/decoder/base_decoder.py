@@ -1,5 +1,5 @@
 from torch import Tensor, nn
-
+from einops.layers.torch import Rearrange
 from tsl.utils import foo_signature
 
 
@@ -14,13 +14,12 @@ class BaseDecoder(nn.Module):
         self.output_size = output_size
         self.horizon = horizon
 
-
-
-    def decode(self, h, *args, **kwargs) -> Tensor:
-        raise NotImplementedError
+        self.decoder = nn.Linear(input_size, output_size * horizon)
+        self.rearrange = Rearrange('b n (t f) -> b t n f', t=horizon)
 
     def forward(self, x: Tensor, *args, **kwargs) -> Tensor:
-        return self.decode(x, *args, **kwargs)
+        x = self.decoder(x)
+        return self.rearrange(x)
 
     @classmethod
     def get_signature(cls) -> dict:
