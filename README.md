@@ -44,3 +44,4 @@ pip install -r requirements.txt
 * [Repo with links to paper about GNNs for fraud detection](https://github.com/safe-graph/graph-fraud-detection-papers)
 * [DiffSTG repo](https://github.com/wenhaomin/DiffSTG)
 * [TSL doc](https://torch-spatiotemporal.readthedocs.io/en/latest/)
+* [Optuna + pytorch lightning](https://machinelearningmastery.com/pytorch-lightning-hyperparameter-optimization-with-optuna/)
