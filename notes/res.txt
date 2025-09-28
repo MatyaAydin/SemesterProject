@@ -1,0 +1,311 @@
+[I 2025-09-27 23:14:02,515] A new study created in memory with name: no-name-69362d0f-a46b-4e37-8a76-687856bf7bbe
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 92.1 K | train
+--------------------------------------------------------------
+92.1 K    Trainable params
+0         Non-trainable params
+92.1 K    Total params
+0.368     Total estimated model params size (MB)
+26        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [02:29<00:00,  0.07it/s, v_num=7, val_mae=0.00236, train_mae=0.00416]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [02:29<00:00,  0.07it/s, v_num=7, val_mae=0.00236, train_mae=0.00416]
+[I 2025-09-27 23:39:03,662] Trial 0 finished with value: 0.002362150466069579 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 64, 'k': 4, 'spatial_layers': 2, 'temporal_layers': 2, 'learning_rate': 0.004739453035357187}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 32.2 K | train
+--------------------------------------------------------------
+32.2 K    Trainable params
+0         Non-trainable params
+32.2 K    Total params
+0.129     Total estimated model params size (MB)
+24        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:40<00:00,  0.10it/s, v_num=4, val_mae=0.00473, train_mae=0.00876]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:40<00:00,  0.10it/s, v_num=4, val_mae=0.00473, train_mae=0.00876]
+[I 2025-09-27 23:55:56,884] Trial 1 finished with value: 0.004730030428618193 and parameters: {'conv_type': 'graphconv', 'hidden_dim': 32, 'k': 2, 'spatial_layers': 1, 'temporal_layers': 3, 'learning_rate': 0.00018393180135502894}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 23.8 K | train
+--------------------------------------------------------------
+23.8 K    Trainable params
+0         Non-trainable params
+23.8 K    Total params
+0.095     Total estimated model params size (MB)
+26        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [00:41<00:00,  0.24it/s, v_num=2, val_mae=0.00265, train_mae=0.0043] 
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [00:41<00:00,  0.24it/s, v_num=2, val_mae=0.00265, train_mae=0.0043]
+[I 2025-09-28 00:02:50,371] Trial 2 finished with value: 0.0026504562702029943 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 32, 'k': 4, 'spatial_layers': 2, 'temporal_layers': 1, 'learning_rate': 0.0071808965606933225}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 58.9 K | train
+--------------------------------------------------------------
+58.9 K    Trainable params
+0         Non-trainable params
+58.9 K    Total params
+0.236     Total estimated model params size (MB)
+28        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:25<00:00,  0.12it/s, v_num=2, val_mae=0.00266, train_mae=0.00414]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:25<00:00,  0.12it/s, v_num=2, val_mae=0.00266, train_mae=0.00414]
+[I 2025-09-28 00:17:08,312] Trial 3 finished with value: 0.002656393451616168 and parameters: {'conv_type': 'graphconv', 'hidden_dim': 64, 'k': 4, 'spatial_layers': 2, 'temporal_layers': 1, 'learning_rate': 0.003110557287587254}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 29.9 K | train
+--------------------------------------------------------------
+29.9 K    Trainable params
+0         Non-trainable params
+29.9 K    Total params
+0.120     Total estimated model params size (MB)
+26        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:10<00:00,  0.14it/s, v_num=0, val_mae=0.00348, train_mae=0.00657]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:10<00:00,  0.14it/s, v_num=0, val_mae=0.00348, train_mae=0.00657]
+[I 2025-09-28 00:29:02,191] Trial 4 finished with value: 0.0034779903944581747 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 32, 'k': 1, 'spatial_layers': 2, 'temporal_layers': 2, 'learning_rate': 0.0015443025901998475}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 39.6 K | train
+--------------------------------------------------------------
+39.6 K    Trainable params
+0         Non-trainable params
+39.6 K    Total params
+0.159     Total estimated model params size (MB)
+23        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [02:11<00:00,  0.08it/s, v_num=0, val_mae=0.0043, train_mae=0.00826] 
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [02:11<00:00,  0.08it/s, v_num=0, val_mae=0.0043, train_mae=0.00826]
+[I 2025-09-28 00:50:54,515] Trial 5 finished with value: 0.004300971515476704 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 32, 'k': 3, 'spatial_layers': 1, 'temporal_layers': 4, 'learning_rate': 0.00031799703519665834}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 54.6 K | train
+--------------------------------------------------------------
+54.6 K    Trainable params
+0         Non-trainable params
+54.6 K    Total params
+0.218     Total estimated model params size (MB)
+23        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:26<00:00,  0.12it/s, v_num=0, val_mae=0.00252, train_mae=0.0041] 
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:26<00:00,  0.12it/s, v_num=0, val_mae=0.00252, train_mae=0.0041]
+[I 2025-09-28 01:05:07,680] Trial 6 finished with value: 0.0025214615743607283 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 64, 'k': 2, 'spatial_layers': 1, 'temporal_layers': 1, 'learning_rate': 0.004952639772206095}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 27.9 K | train
+--------------------------------------------------------------
+27.9 K    Trainable params
+0         Non-trainable params
+27.9 K    Total params
+0.111     Total estimated model params size (MB)
+28        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:10<00:00,  0.14it/s, v_num=0, val_mae=0.00286, train_mae=0.00508]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:10<00:00,  0.14it/s, v_num=0, val_mae=0.00286, train_mae=0.00508]
+[I 2025-09-28 01:16:57,971] Trial 7 finished with value: 0.0028634252957999706 and parameters: {'conv_type': 'graphconv', 'hidden_dim': 32, 'k': 1, 'spatial_layers': 2, 'temporal_layers': 2, 'learning_rate': 0.0027527705397691962}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 12.6 K | train
+--------------------------------------------------------------
+12.6 K    Trainable params
+0         Non-trainable params
+12.6 K    Total params
+0.050     Total estimated model params size (MB)
+24        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [00:40<00:00,  0.25it/s, v_num=0, val_mae=0.00333, train_mae=0.00685]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [00:40<00:00,  0.25it/s, v_num=0, val_mae=0.00333, train_mae=0.00685]
+[I 2025-09-28 01:23:43,518] Trial 8 finished with value: 0.0033331087324768305 and parameters: {'conv_type': 'graphconv', 'hidden_dim': 16, 'k': 2, 'spatial_layers': 1, 'temporal_layers': 2, 'learning_rate': 0.004172432536860444}. Best is trial 0 with value: 0.002362150466069579.
+
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 19.5 K | train
+--------------------------------------------------------------
+19.5 K    Trainable params
+0         Non-trainable params
+19.5 K    Total params
+0.078     Total estimated model params size (MB)
+24        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [00:40<00:00,  0.25it/s, v_num=0, val_mae=0.00312, train_mae=0.00451]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [00:40<00:00,  0.25it/s, v_num=0, val_mae=0.00312, train_mae=0.00451]
+[I 2025-09-28 01:30:28,963] Trial 9 finished with value: 0.0031175219919532537 and parameters: {'conv_type': 'graphconv', 'hidden_dim': 32, 'k': 2, 'spatial_layers': 1, 'temporal_layers': 1, 'learning_rate': 0.005803329242441174}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 117 K  | train
+--------------------------------------------------------------
+117 K     Trainable params
+0         Non-trainable params
+117 K     Total params
+0.468     Total estimated model params size (MB)
+26        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [03:37<00:00,  0.05it/s, v_num=0, val_mae=0.00342, train_mae=0.00691]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [03:37<00:00,  0.05it/s, v_num=0, val_mae=0.00342, train_mae=0.00691]
+[I 2025-09-28 02:06:35,833] Trial 10 finished with value: 0.003420189255848527 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 64, 'k': 5, 'spatial_layers': 2, 'temporal_layers': 3, 'learning_rate': 0.000646158936588505}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 54.8 K | train
+--------------------------------------------------------------
+54.8 K    Trainable params
+0         Non-trainable params
+54.8 K    Total params
+0.219     Total estimated model params size (MB)
+23        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [01:26<00:00,  0.12it/s, v_num=0, val_mae=0.00241, train_mae=0.00407]
+`Trainer.fit` stopped: `max_epochs=10` reached.
+Epoch 9: 100%|██████████| 10/10 [01:26<00:00,  0.12it/s, v_num=0, val_mae=0.00241, train_mae=0.00407]
+[I 2025-09-28 02:20:50,474] Trial 11 finished with value: 0.00240913568995893 and parameters: {'conv_type': 'diffconv', 'hidden_dim': 64, 'k': 4, 'spatial_layers': 1, 'temporal_layers': 1, 'learning_rate': 0.009455479467049511}. Best is trial 0 with value: 0.002362150466069579.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+
+  | Name          | Type                | Params | Mode 
+--------------------------------------------------------------
+0 | loss_fn       | MaskedMAE           | 0      | train
+1 | train_metrics | MetricCollection    | 0      | train
+2 | val_metrics   | MetricCollection    | 0      | train
+3 | test_metrics  | MetricCollection    | 0      | train
+4 | model         | EncoderDecoderModel | 79.8 K | train
+--------------------------------------------------------------
+79.8 K    Trainable params
+0         Non-trainable params
+79.8 K    Total params
+0.319     Total estimated model params size (MB)
+23        Modules in train mode
+0         Modules in eval mode
+Epoch 9: 100%|██████████| 10/10 [00:39<00:00,  0.25it/s, v_num=0, val_mae=0.00329, train_mae=0.00423]
+
+Detected KeyboardInterrupt, attempting graceful shutdown ...
