@@ -8,7 +8,13 @@
 
 **New**:
 * Should median filter be causal ? do I apply it on the whole time series or just the outliers ?
+* Scaling: Scale features, target or both ?
+* Memory error with lstm cell during training despite only ~300k parameters
 
+![alt text](image-8.png)
+
+
+* selected sensors: currently, daily mean look OK (**show plots**) but not a simple plot, which shows bad results when forecasting 1 hour horizon. Should I restrict more the sensors for hourly horizon and work with daily means (i.e, change sampling period) for daily predicitions?
 
 
 

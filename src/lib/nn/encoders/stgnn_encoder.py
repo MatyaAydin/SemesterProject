@@ -24,6 +24,7 @@ class STGNNEncoder(InputEncoder):
                  emb_size: int,
                  temporal_layers: int,
                  gnn_layers: int,
+                #  temporal_hidden_size: int,
                  force_symmetric: bool = False,
                  exog_size: int = 0,
                  conv_type: str = "diffconv",

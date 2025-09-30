@@ -3,5 +3,6 @@ venv/
 papers/
 corel/
 logs/
+image*
 
 __pycache__/
