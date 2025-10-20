@@ -14,7 +14,6 @@ No spatial data -->[Learn graph representation](https://github.com/andreacini/co
 
 For first benchmark with scalar output: MAE, RMSE MAE percentage
 
-
 **TODO**:
 * Extract and visualize learned adjacency matrix
 * Clean repo
