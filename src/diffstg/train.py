@@ -436,12 +436,12 @@ def main(params: dict):
         if epoch - metrics_val.best_metrics['epoch'] > config.early_stop: break  # Early_stop
 
 
-    try:
-        model = torch.load(model_path, map_location=config.device)
-        print('best model loaded from: <<', model_path)
-    except Exception as err:
-        print(err)
-        print('load best model failed')
+    # try:
+    #     model = torch.load(model_path, map_location=config.device)
+    #     print('best model loaded from: <<', model_path)
+    # except Exception as err:
+    #     print(err)
+    #     print('load best model failed')
 
     # conduct multiple-samples, then report the best
     # metric_lst = []
