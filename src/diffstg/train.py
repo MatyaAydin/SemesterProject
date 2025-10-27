@@ -126,6 +126,7 @@ def default_config(data='AIR_BJ'):
         cuda_id = GpuId2CudaId(gpu_id)
         torch.cuda.set_device(f"cuda:{cuda_id}")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Using device:', device)
 
     # model config
     config.model = edict()
@@ -307,6 +308,7 @@ def main(params: dict):
     config.model.beta_schedule = params["beta_schedule"]
     config.model.sample_strategy = params["ss"]
     config.n_samples = params['n_samples']
+    config.epoch = params['epoch']
 
     if config.model.sample_steps > config.model.N:
         print('sample steps large than N, exit')
