@@ -387,7 +387,6 @@ def main(params: dict):
         n, avg_loss, time_lst = 0, 0, []
         # train diffusion model
         for i, batch in enumerate(train_loader):
-            if i > 3 and config.is_test:break
             time_start =  timer()
             future, history, pos_w, pos_d = batch # future:(B, T_p, V, F), history: (B, T_h, V, F)
 
@@ -433,7 +432,10 @@ def main(params: dict):
 
         if metrics_val.best_metrics['epoch'] == epoch:
             #print('[save model]>> ', model_path)
-            torch.save(model, model_path)
+            try:
+                torch.save(model, model_path)
+            except Exception as e:
+                print("Error saving model:", e)
 
         if epoch - metrics_val.best_metrics['epoch'] > config.early_stop:
             print(f"early stop at epoch {epoch}")
