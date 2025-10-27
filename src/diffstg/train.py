@@ -382,7 +382,7 @@ def main(params: dict):
     # Train and sample the data
     for epoch in tqdm(range(config.epoch)):
         if not params['is_train']: break
-        if epoch > 1 and config.is_test: break
+        # if epoch > 1 and config.is_test: break
 
         n, avg_loss, time_lst = 0, 0, []
         # train diffusion model
