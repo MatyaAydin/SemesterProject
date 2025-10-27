@@ -164,7 +164,7 @@ def default_config(data='AIR_BJ'):
     config.batch_size = 32
     config.wd = 1e-5
     config.early_stop = 10
-    config.start_epoch = 0
+    config.start_epoch = 5
     config.device = device
     config.logger = Logger()
 
@@ -435,7 +435,9 @@ def main(params: dict):
             #print('[save model]>> ', model_path)
             torch.save(model, model_path)
 
-        if epoch - metrics_val.best_metrics['epoch'] > config.early_stop: break  # Early_stop
+        if epoch - metrics_val.best_metrics['epoch'] > config.early_stop:
+            print(f"early stop at epoch {epoch}")
+            break  # Early_stop
 
 
     # try:
@@ -483,6 +485,7 @@ def main(params: dict):
     try:
         writer.close()
     except:
+        print("error with writer close")
         pass
 
     # nni.report_final_result(min(metric_lst))
@@ -499,7 +502,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('training')
 
 
-    # print('GPU:', torch.cuda.current_device())
+    print('GPU:', torch.cuda.current_device())
 
     try:
         tuner_params = nni.get_next_parameter()
@@ -507,6 +510,7 @@ if __name__ == '__main__':
         params = vars(get_params())
         params.update(tuner_params)
         main(params)
+        print("Training completed!")
     except Exception as exception:
         logger.exception(exception)
         raise
