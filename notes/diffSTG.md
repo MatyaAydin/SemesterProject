@@ -4,7 +4,7 @@
 
 ### Overview 
 
-![alt text](image.png)
+![alt text](./images/image.png)
 
 DiffSTG is a model that uses both spatial temporal graph neural network to capture spatial and temporal dependencies in the data, but also diffusion models to quantify uncertainty in the prediction. It comes after other ST-based models that would just output a scalar.
 
@@ -12,11 +12,11 @@ DiffSTG is a model that uses both spatial temporal graph neural network to captu
 
 The denoising process is conditioned on the graph and the historical node features:
 
-![alt text](image-1.png)
+![alt text](./images/image-1.png)
 
 The denoiser $\epsilon_{\theta}$ (aka UGnet) is inspried from a Unet architecture:
 
-![alt text](image-2.png)
+![alt text](./images/image-2.png)
 
 The graph convolution block captures the spatial dependencies, whereas the gated causal convolution blocks capture the temporal dependencies. Positional encoding of the (de)noising step is added for causality.
 
@@ -24,12 +24,9 @@ The graph convolution block captures the spatial dependencies, whereas the gated
 
 #### Equations
 
-![alt text](image-5.png)
+![alt text](./images/image-5.png)
 
 By definition of $A_{gcn}$, the aggregation is just a normalized sum over the neighbors
-
-
-
 
 ##### Code
 
@@ -66,10 +63,9 @@ class SpatialBlock(nn.Module):
 
 It consists of a 1D causal (as it is a time series) convolution with a filter $K$ followed by a gated block to filter useful information and introduce nonlinearity:
 
-![alt text](image-3.png)
+![alt text](./images/image-3.png)
 
-![alt text](image-4.png)
-
+![alt text](./images/image-4.png)
 
 ##### Code
 
@@ -113,9 +109,9 @@ class TcnBlock(nn.Module):
 
 ### Denoiser architecture in the other paper:
 
-![alt text](image-6.png)
+![alt text](./images/image-6.png)
 
-![alt text](image-7.png)
+![alt text](./images/image-7.png)
 
 $\rho_m$ is a moving average of the temporal features. $\delta_m$ is a combination of this MA with the positonal encoding of the denoising step. $\mathbf{W}_k$ is a projection to adapt the dimension. From $\delta_m$, we perform parallel feature extraction: dilatedConv for temporal and GatedGConv for spatial. Embedding from the hidden state from the GRU $h_t$ is then added. $z_m$ filters which states of $g_m$ are important.
 This is done for $M$ blocks in parallel whose outputs are then aggregated to get $\epsilon_{\theta}$
@@ -131,5 +127,3 @@ This is done for $M$ blocks in parallel whose outputs are then aggregated to get
 * Adapt noise variance based on variance in dataset ?
 
 In general future work is modifying the denoiser architecture
-
-

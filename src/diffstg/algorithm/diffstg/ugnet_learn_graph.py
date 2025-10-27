@@ -253,6 +253,7 @@ class UGnet(nn.Module):
             # tau=1,
             # sparsify_gradient=sparsify_gradient,
             # at_most_k=at_most_k
+            mode = "diffSTG"
         )
 
 

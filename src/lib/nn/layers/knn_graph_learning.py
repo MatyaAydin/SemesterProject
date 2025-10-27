@@ -19,10 +19,12 @@ class AdjEmb(nn.Module):
                  num_nodes,
                  num_dummies,
                  learnable=True,
-                 clamp_at=5.):
+                 clamp_at=5.,
+                 mode=None):
         super(AdjEmb, self).__init__()
         self.clamp_value = clamp_at
         self.logits = nn.Parameter(torch.rand(num_nodes, num_nodes + num_dummies) - 0.5, requires_grad=learnable)
+        self.mode = None
 
     def soft_clip(self, logits):
         return self.clamp_value * torch.tanh(logits / self.clamp_value)
@@ -87,6 +89,9 @@ class DifferentiableKnnGraphLayer(nn.Module):
 
         n_samples = 1 # TODO temporary fix, might not be optimal
         adj = self.sample_adj(n_samples=n_samples)
+        # DiffSTG expects an adjacency matrix
+        if self.mode == 'diffSTG':
+            return adj
         if self.training and not self.inference_mode:
            return self.adj_to_training_edge_index(adj)
         return adj_to_edge_index(adj)

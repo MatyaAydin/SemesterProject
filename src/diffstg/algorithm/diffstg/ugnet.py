@@ -235,7 +235,7 @@ class UGnet(nn.Module):
         self.out = nn.Sequential(nn.Conv2d(self.d_h, self.F, (1,1)),
                                  nn.Linear(2 * T, T),)
         # for gcn
-        a1 = asym_adj(config.A) # TODO build graph with knndifferentiable layer and extract adjacency matrix from it
+        a1 = asym_adj(config.A)
         a2 = asym_adj(np.transpose(config.A))
         self.a1 = torch.from_numpy(a1).to(config.device)
         self.a2 = torch.from_numpy(a2).to(config.device)
@@ -245,7 +245,7 @@ class UGnet(nn.Module):
     def forward(self, x: torch.Tensor, t: torch.Tensor, c):
         """
         :param x: x_t of current diffusion step, (B, F, V, T)
-        :param t: diffsusion step
+        :param t: diffusion step
         :param c: condition information
             used information in c:
                 x_masked: (B, F, V, T)

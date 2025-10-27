@@ -1,4 +1,4 @@
-# ..\SemesterProject\venv\Scripts\python.exe .\train.py
+# ..\..\venv\Scripts\python.exe .\train.py
 
 # -*- coding: utf-8 -*-
 import os, sys
@@ -17,12 +17,7 @@ from utils.common_utils import dir_check, to_device, ws, unfold_dict, dict_merge
 from algorithm.dataset import CleanDataset, TrafficDataset
 from algorithm.diffstg.model import DiffSTG, save2file
 
-# additional imports for new dataloader
-import pandas as pd
-from tsl.data import SpatioTemporalDataset
-from tsl.data.datamodule import (SpatioTemporalDataModule,
-                                TemporalSplitter)
-from tsl.data.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
 
 
@@ -110,11 +105,20 @@ def default_config(data='AIR_BJ'):
 
 
     if config.data.name == 'EWZ':
+        print('load EWZ data settings')
         config.data.num_features = 1
         config.data.num_vertices = 83
         config.data.points_per_hour = 4
         config.data.val_start_idx = int(101915 * 0.6)
         config.data.test_start_idx = int(101915 * 0.75)
+
+    if config.data.name == 'EWZ_preprocessed':
+        print('load EWZ preprocessed data settings')
+        config.data.num_features = 1
+        config.data.num_vertices = 50
+        config.data.points_per_hour = 1
+        config.data.val_start_idx = int(52888 * 0.7)
+        config.data.test_start_idx = int(52888 * 0.85)
 
     gpu_id = GPU().get_usefuel_gpu(max_memory=6000, condidate_gpu_id=[0,1,2,3,4,6,7,8])
     config.gpu_id = gpu_id
@@ -175,7 +179,8 @@ def default_config(data='AIR_BJ'):
 def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
     setup_seed(2022)
 
-    y_pred, y_true, time_lst = [], [], []
+    y_true, time_lst = [], []
+    y_pred_mean, y_pred_var = [], []
     metrics_future = Metric(T_p=config.model.T_p)
     metrics_history = Metric(T_p=config.model.T_h)
     model.eval()
@@ -195,7 +200,10 @@ def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
 
         n_samples = 1 if mode == 'Val' else config.n_samples
         # n_samples = config.n_samples
-        x_hat = model((x_masked, pos_w, pos_d), n_samples) # (B, n_samples, F, V, T)
+        if mode == 'Test':
+            x_hat, var_hat = model((x_masked, pos_w, pos_d), n_samples) # (B, n_samples, F, V, T)
+        else:
+            x_hat = model((x_masked, pos_w, pos_d), n_samples)  # (B, n_samples, F, V, T)
         samples.append(x_hat.transpose(2,4).cpu())
 
         if x_hat.shape[-1] != (config.model.T_h + config.model.T_p): x_hat = x_hat.transpose(2,4)
@@ -211,7 +219,13 @@ def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
         _y_pred_ = np.clip(_y_pred_, 0, np.inf)
         metrics_future.update_metrics(_y_true_, _y_pred_)
 
-        y_pred.append(_y_pred_)
+        y_pred_mean.append(_y_pred_)
+        if mode == 'Test':
+            var_hat = var_hat.detach()
+            f_var_hat = var_hat[:, :, :, :, -config.model.T_p:]  # future
+            _y_var_ = f_var_hat.transpose(2, 4).cpu().numpy()  # y_var: (B, n_samples, T_p, V, D)
+            y_pred_var.append(_y_var_)
+
         y_true.append(_y_true_)
 
         h_x, h_x_hat = x[:, :, :, :config.model.T_h], x_hat[:, :, :, :,  :config.model.T_h]
@@ -221,14 +235,14 @@ def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
         metrics_history.update_metrics(_y_true_, _y_pred_)
 
     y_true = np.concatenate(y_true, axis=0)
-    y_pred = np.concatenate(y_pred, axis=0)
+    y_pred_mean = np.concatenate(y_pred_mean, axis=0)
 
     time_cost = np.sum(time_lst)
-    metric.update_metrics(y_true, y_pred)
+    metric.update_metrics(y_true, y_pred_mean)
     metric.update_best_metrics(epoch=epoch)
     metric.metrics['time'] = time_cost
 
-    if mode == 'test': # save the prediction result to file
+    if mode == 'Test': # save the prediction result to file
         samples = torch.cat(samples, dim=0)[:50]
         targets = torch.cat(targets, dim=0)[:50]
         observed_flag = torch.ones_like(targets) #(B, T, V, F)
@@ -250,19 +264,21 @@ def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
         message = f" |[{metric.metrics['mae']:<7.2f}{metric.metrics['rmse']:<7.2f}]"
     else:
         message = f" | {metric.metrics['mae']:<7.2f}{metric.metrics['rmse']:<7.2f}"
-    print(message, end='', flush=False)
+    # print(message, end='', flush=False)
     config.logger.message_buffer += message
 
     # log of performance in historical prediction
     message = f" | {metrics_history.metrics['mae']:<7.2f}{metrics_history.metrics['rmse']:<7.2f}{time_cost:<5.2f}s"
-    print(message, end='\n', flush=False)
+    # print(message, end='\n', flush=False)
     config.logger.message_buffer += f"{message}\n"
 
     # write log message buffer
     config.logger.write_message_buffer()
 
     torch.cuda.empty_cache()
-    return metric
+    if mode == 'Val':
+        return metric
+    return metric, y_true, y_pred_mean, y_pred_var
 
 
 from pprint import  pprint
@@ -302,7 +318,7 @@ def main(params: dict):
     config.trial_name = '+'.join([f"{v}" for k, v in params.items()])
     config.log_path = f"{config.PATH_LOG}/{config.trial_name}.log"
 
-    pprint(config)
+    # pprint(config)
     dir_check(config.log_path)
     config.logger.open(config.log_path, mode="w")
     #log parameters
@@ -348,7 +364,7 @@ def main(params: dict):
 
 
     # log model architecture
-    print(model)
+    # print(model)
     config.logger.write(model.__str__())
 
     # log training process
@@ -372,7 +388,6 @@ def main(params: dict):
             if i > 3 and config.is_test:break
             time_start =  timer()
             future, history, pos_w, pos_d = batch # future:(B, T_p, V, F), history: (B, T_h, V, F)
-            # TODO expand dimension, use dataloader with windowing
 
             # get x0
             x = torch.cat((history, future), dim=1).to(config.device) #  (B, T, V, F)
@@ -399,7 +414,7 @@ def main(params: dict):
 
             time_lst.append((timer() - time_start))
             message = f"{i / len(train_loader) + epoch:6.1f}| {avg_loss:0.3f} {np.sum(time_lst):.1f}s"
-            print('\r' + message, end='', flush=True)
+            # print('\r' + message, end='', flush=True)
 
         config.logger.message_buffer += message
 
@@ -409,7 +424,6 @@ def main(params: dict):
             pass
 
 
-        # Do later
 
         if epoch >= config.start_epoch:
             evals(model, val_loader, epoch, metrics_val, config, clean_data, mode='Val')
@@ -430,42 +444,46 @@ def main(params: dict):
         print('load best model failed')
 
     # conduct multiple-samples, then report the best
-    metric_lst = []
-    for sample_strategy, sample_steps in [('ddim_multi', 40)]:
-        if sample_steps > config.model.N: break
+    # metric_lst = []
+    # for sample_strategy, sample_steps in [('ddpm', 3)]: #[('ddim_multi', 40)]:
+    #     if sample_steps > config.model.N: break
 
-        config.model.sample_strategy = sample_strategy
-        config.model.sample_steps = sample_steps
+    #     config.model.sample_strategy = sample_strategy
+    #     config.model.sample_steps = sample_steps
 
-        model.set_ddim_sample_steps(sample_steps)
-        model.set_sample_strategy(sample_strategy)
+    #     model.set_ddim_sample_steps(sample_steps)
+    #     model.set_sample_strategy(sample_strategy)
 
-        metrics_test = Metric(T_p=config.model.T_h + config.model.T_p)
-        evals(model, test_loader, epoch, metrics_test, config, clean_data, mode='test')
-        message = f'sample_strategy:{sample_strategy}, sample_steps:{sample_steps} Final results in test:{metrics_test}\n'
-        config.logger.write(message, is_terminal=True)
+    #     metrics_test = Metric(T_p=config.model.T_h + config.model.T_p)
+    #     model.mode = 'plot'
+    #     metrics, y_true, y_mean, y_var = evals(model, test_loader, epoch, metrics_test, config, clean_data, mode='Test')
+    #     print('OUTPUT SHAPE')
+    #     print(np.shape(y_mean), np.shape(y_var), np.shape(y_true), np.shape(y_mean))
 
-        params = unfold_dict(config)
-        params = dict_merge([params, metrics_test.to_dict()])
-        params['best_epoch'] = metrics_val.best_metrics['epoch']
-        params['model'] = config.model.epsilon_theta
-        save2file(params)
-        metric_lst.append(metrics_test.metrics['mae'])
+    #     message = f'sample_strategy:{sample_strategy}, sample_steps:{sample_steps} Final results in test:{metrics_test}\n'
+    #     config.logger.write(message, is_terminal=True)
+
+    #     params = unfold_dict(config)
+    #     params = dict_merge([params, metrics_test.to_dict()])
+    #     params['best_epoch'] = metrics_val.best_metrics['epoch']
+    #     params['model'] = config.model.epsilon_theta
+    #     save2file(params)
+    #     metric_lst.append(metrics_test.metrics['mae'])
 
     # rename log file
-    log_file, log_name = os.path.split(config.log_path)
-    new_log_path = os.path.join(log_file, f"[{config.data.name}]mae{min(metric_lst):7.2f}+{log_name}")
+    # log_file, log_name = os.path.split(config.log_path)
+    # new_log_path = os.path.join(log_file, f"[{config.data.name}]mae{min(metric_lst):7.2f}+{log_name}")
     import shutil
     # os.rename(config.log_path, new_log_path)
-    shutil.copy(config.log_path, new_log_path)
-    config.log_path = new_log_path
+    # shutil.copy(config.log_path, new_log_path)
+    # config.log_path = new_log_path
 
     try:
         writer.close()
     except:
         pass
 
-    nni.report_final_result(min(metric_lst))
+    # nni.report_final_result(min(metric_lst))
 
 
 # data.name	model	model.N	model.epsilon_theta	model.d_h	model.T_h	model.T_p	model.sample_strategy
