@@ -4,5 +4,6 @@ papers/
 corel/
 logs/
 image*
+output/
 
 __pycache__/
