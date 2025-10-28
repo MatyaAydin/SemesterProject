@@ -34,7 +34,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = torch.load(trained_model_path, map_location=device, weights_only=False)
 
-with open('./config.pkl', 'rb') as f:
+with open('./config_learngraph.pkl', 'rb') as f:
     config = edict(pickle.load(f))
 
 clean_data = CleanDataset(config)
@@ -103,9 +103,9 @@ def predict(model, data_loader, config, clean_data, mode='Test'):
     return y_true, y_pred
 
 # %%
-y_true, y_pred = predict(model, val_loader, config, clean_data, mode='Val')
+y_true, y_pred = predict(model, test_loader, config, clean_data, mode='Val')
 print('computed predictions')
-np.save('./pred_test.npy', y_pred)
-np.save('./true_test.npy', y_true)
+np.save('./pred_learngraph.npy', y_pred)
+np.save('./true_learngraph.npy', y_true)
 
 

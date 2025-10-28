@@ -356,7 +356,7 @@ def main(params: dict):
     # metrics in val, and test dataset, note that we cannot evaluate the performance in the train dataset
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
-    model_path = config.PATH_MOD + config.trial_name + model.model_file_name()
+    model_path = config.PATH_MOD + config.trial_name + 'learnablegraph' + model.model_file_name()
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)
