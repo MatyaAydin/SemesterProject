@@ -5,7 +5,7 @@ from torch import nn, inference_mode
 from torch import Tensor
 
 from .samplers.subset import StraightThroughSubsetSampler
-from ...utils import adj_to_fc_edge_index
+from ..utils import adj_to_fc_edge_index
 from tsl.nn.layers import NodeEmbedding
 import tsl
 from tsl.ops.connectivity import adj_to_edge_index
