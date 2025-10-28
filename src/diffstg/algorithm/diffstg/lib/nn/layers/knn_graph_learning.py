@@ -19,12 +19,10 @@ class AdjEmb(nn.Module):
                  num_nodes,
                  num_dummies,
                  learnable=True,
-                 clamp_at=5.,
-                 mode=None):
+                 clamp_at=5.):
         super(AdjEmb, self).__init__()
         self.clamp_value = clamp_at
         self.logits = nn.Parameter(torch.rand(num_nodes, num_nodes + num_dummies) - 0.5, requires_grad=learnable)
-        self.mode = None
 
     def soft_clip(self, logits):
         return self.clamp_value * torch.tanh(logits / self.clamp_value)
@@ -41,7 +39,8 @@ class DifferentiableKnnGraphLayer(nn.Module):
                  tau: float,
                  sparsify_gradient=False,
                  at_most_k=False,
-                 gradient_sparsity=0.9):
+                 gradient_sparsity=0.9,
+                 mode=None):
         super(DifferentiableKnnGraphLayer, self).__init__()
         self.k = k
         self.tau = tau
@@ -50,6 +49,7 @@ class DifferentiableKnnGraphLayer(nn.Module):
         self.n_dummies = self.k - 1 if at_most_k else 0
         self.n_nodes = n_nodes
         self.at_most_k = at_most_k
+        self.mode = mode
 
         # self.logits = NodeEmbedding(n_nodes=n_nodes,
         #                             emb_size=n_nodes + self.n_dummies,)
