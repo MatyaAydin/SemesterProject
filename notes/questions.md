@@ -17,10 +17,8 @@ can drop but try to cmp with spatial block in UGNET
 **New**:
 
 * How to access variance in the prediction ?
+* Preds seem to overshoot. Might be because Outliers are not removed in ewz_preprocessed. Ask for script so I can merge all preprocessing in one.
 
-try to add graph learning in ugnet
+try to add graph learning in ugnet: show where in code. Use adj.npy normalized as prior ?
 change block in ugnet one by one then compare
-check number of epochs in diffstg code
-adapt config to sampling rate sensors,..;
-model evaluation:
 IOT: electricty data: open dataset and no need to learn graph

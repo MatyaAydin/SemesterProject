@@ -238,21 +238,15 @@ class UGnet(nn.Module):
         self.x_proj = nn.Conv2d(self.F, self.d_h, (1,1))
         self.out = nn.Sequential(nn.Conv2d(self.d_h, self.F, (1,1)),
                                  nn.Linear(2 * T, T),)
-        # for gcn
-        # a1 = asym_adj(config.A) # TODO build graph with knndifferentiable layer and extract adjacency matrix from it
-        # a2 = asym_adj(np.transpose(config.A))
-        # self.a1 = torch.from_numpy(a1).to(config.device)
-        # self.a2 = torch.from_numpy(a2).to(config.device)
         config.supports_len = 2
 
 
         self.graph_learning_module = DifferentiableKnnGraphLayer(
-            # TODO add args in config
-            # n_nodes=n_instances,
-            # k=n_neighbors,
-            # tau=1,
-            # sparsify_gradient=sparsify_gradient,
-            # at_most_k=at_most_k
+            n_nodes=config.V,
+            k=4,
+            tau=1,
+            sparsify_gradient=False,
+            at_most_k=False,
             mode = "diffSTG"
         )
 
@@ -277,7 +271,7 @@ class UGnet(nn.Module):
 
         h = [x]
 
-        A = None # TODO self.graph_learning_module(?)
+        A = self.graph_learning_module(x)
         a1 = asym_adj(A)
         a2 = asym_adj(np.transpose(A))
 

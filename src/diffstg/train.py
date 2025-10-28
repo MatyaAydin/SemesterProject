@@ -299,7 +299,7 @@ def main(params: dict):
     # model
     config.model.N = params['N']
     config.T_h = config.model.T_h = params['T_h']
-    config.T_p = config.model.T_p =  params['T_h']
+    config.T_p = config.model.T_p =  params['T_p']
     config.model.epsilon_theta =  params['epsilon_theta']
     config.model.sample_steps = params['sample_steps']
     config.model.d_h = params['hidden_size']
