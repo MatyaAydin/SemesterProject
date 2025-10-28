@@ -65,8 +65,8 @@ def predict(model, data_loader, config, clean_data, mode='Test'):
         x = x.transpose(1, 3)  # (B, F, V, T)
         x_masked = x_masked.transpose(1, 3)  # (B, F, V, T)
 
-        n_samples = 1 if mode == 'Val' else config.n_samples
-        # n_samples = config.n_samples
+        # n_samples = 1 if mode == 'Val' else config.n_samples
+        n_samples = config.n_samples
         x_hat = model((x_masked, pos_w, pos_d), n_samples) # (B, n_samples, F, V, T)
         samples.append(x_hat.transpose(2,4).cpu())
 

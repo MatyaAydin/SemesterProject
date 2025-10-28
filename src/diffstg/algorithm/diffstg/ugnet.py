@@ -6,6 +6,7 @@ import math
 import torch.nn.init as init
 
 from .graph_algo import *
+from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
 
 """
 Implementation of UGnet
@@ -190,6 +191,7 @@ class UGnet(nn.Module):
         self.T_h = config.T_h
         T = self.T_p + self.T_h
         F = self.F = config.F
+        self.graph_method = config.graph_method
 
         self.n_blocks = config.get('n_blocks', 2)
 
@@ -235,6 +237,15 @@ class UGnet(nn.Module):
         self.out = nn.Sequential(nn.Conv2d(self.d_h, self.F, (1,1)),
                                  nn.Linear(2 * T, T),)
         # for gcn
+
+        self.graph_learning_module = DifferentiableKnnGraphLayer(
+            n_nodes=config.V,
+            k=4,
+            tau=1,
+            sparsify_gradient=False,
+            at_most_k=False,
+            mode = "diffSTG"
+        )
         a1 = asym_adj(config.A)
         a2 = asym_adj(np.transpose(config.A))
         self.a1 = torch.from_numpy(a1).to(config.device)
@@ -262,7 +273,16 @@ class UGnet(nn.Module):
 
         h = [x]
 
-        supports = torch.stack([self.a1, self.a2])
+        if self.graph_method == 'learnable':
+            A = self.graph_learning_module(x)
+            a1 = asym_adj(A)
+            a2 = asym_adj(np.transpose(A))
+
+            a1 = torch.from_numpy(a1).to(self.device)
+            a2 = torch.from_numpy(a2).to(self.device)
+            supports = torch.stack([a1, a2])
+        else:
+            supports = torch.stack([self.a1, self.a2])
 
         for m in self.down:
             x = m(x, t, supports)

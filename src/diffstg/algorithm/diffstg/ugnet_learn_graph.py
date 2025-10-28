@@ -278,7 +278,7 @@ class UGnet(nn.Module):
         a1 = torch.from_numpy(a1).to(self.device)
         a2 = torch.from_numpy(a2).to(self.device)
 
-        supports = torch.stack([self.a1, self.a2])
+        supports = torch.stack([a1, a2])
 
         for m in self.down:
             x = m(x, t, supports)

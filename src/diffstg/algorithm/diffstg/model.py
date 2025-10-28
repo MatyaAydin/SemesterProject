@@ -27,8 +27,6 @@ class DiffSTG(nn.Module):
         self.beta_end = config.get('beta_end', 0.02)
         self.beta_schedule = config.beta_schedule
 
-        self.mode = 'train' # 'train' or 'plot'
-
         if config.epsilon_theta == 'UGnet':
             self.eps_model = UGnet(config).to(self.device)
 
@@ -76,10 +74,6 @@ class DiffSTG(nn.Module):
 
         eps = torch.randn(xt.shape, device=xt.device)
 
-        # return both mean and var for uncertainty estimation
-        if self.mode == 'plot':
-            return mean, var
-
         return mean + eps * (var ** 0.5)
 
     def p_sample_loop(self, c):
@@ -96,13 +90,7 @@ class DiffSTG(nn.Module):
             for t in range(self.N, 0, -1):  #in paper, t should start from T, and end at 1
                 t = t - 1 # in code, t is index, so t should minus 1
                 if t>0:
-                    if self.mode == 'plot':
-                        mean, var = self.p_sample(x, x.new_full((B, ),t, dtype=torch.long), c)
-                        x = mean
-                        if t == 1:
-                            return x, var
-                    else:
-                        x = self.p_sample(x, x.new_full((B, ),t, dtype=torch.long), c)
+                    x = self.p_sample(x, x.new_full((B, ),t, dtype=torch.long), c)
         return  x
 
     def p_sample_loop_ddim(self, c):
@@ -149,15 +137,9 @@ class DiffSTG(nn.Module):
             return x
         if self.sample_strategy == 'ddpm':
             x_masked = x_masked.unsqueeze(1).repeat(1, n_samples, 1, 1, 1).reshape(-1, F, V, T)  # .to(self.config.device)
-            if self.mode == 'plot':
-                x, var = self.p_sample_loop((x_masked, _, _))
-                x = x.reshape(B, n_samples, F, V, T)
-                var = var.reshape(B, n_samples, F, V, T)
-                return x, var  # (B, n_samples, F, V, T) 
-            else:
-                x = self.p_sample_loop((x_masked, _, _))
-                x = x.reshape(B, n_samples, F, V, T)
-                return x  # (B, n_samples, F, V, T)
+            x = self.p_sample_loop((x_masked, _, _))
+            x = x.reshape(B, n_samples, F, V, T)
+            return x  # (B, n_samples, F, V, T)
         else:
             raise  NotImplementedError
 

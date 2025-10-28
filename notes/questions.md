@@ -12,13 +12,15 @@
 
 can drop but try to cmp with spatial block in UGNET
 
-* selected sensors: currently, daily mean look OK (**show plots**) but not a simple plot, which shows bad results when forecasting 1 hour horizon. Should I restrict more the sensors for hourly horizon and work with daily means (i.e, change sampling period) for daily predicitions? OK
-
 **New**:
 
-* How to access variance in the prediction ?
+* How to access variance in the prediction ? USE N_sample
 * Preds seem to overshoot. Might be because Outliers are not removed in ewz_preprocessed. Ask for script so I can merge all preprocessing in one.
+* try to add graph learning in ugnet: show where in code. Use adj.npy normalized as prior (+ Laplace smoothing to get nonzero proba) ?
 
-try to add graph learning in ugnet: show where in code. Use adj.npy normalized as prior ?
+ablation study: comapre with vs without graph learning, and other blocks and eletrical dataset
+
+anomaly detection: build many c% CI and classify anomalies
+
 change block in ugnet one by one then compare
-IOT: electricty data: open dataset and no need to learn graph
+IOT: electricty data: open dataset and no need to learn graph (just to benchmark) use get_connectivity from tsl and compare with knn lernable

@@ -52,6 +52,7 @@ def get_params():
     parser.add_argument("--T_h", type=int, default=12)
     parser.add_argument("--T_p", type=int, default=12)
     parser.add_argument("--epoch", type=int, default=300)
+    parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
 
     # eval
     parser.add_argument('--n_samples', type=int, default=8)
@@ -308,6 +309,7 @@ def main(params: dict):
     config.model.beta_end = params['beta_end']
     config.model.beta_schedule = params["beta_schedule"]
     config.model.sample_strategy = params["ss"]
+    config.model.graph_method = params['graph_method']
     config.n_samples = params['n_samples']
     config.epoch = params['epoch']
 
@@ -368,7 +370,7 @@ def main(params: dict):
     import pickle
     config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
 
-    with open('./config.pkl', 'wb') as f:
+    with open('./config_learngraph.pkl', 'wb') as f:
         pickle.dump(config_savable, f)
 
 
@@ -385,16 +387,14 @@ def main(params: dict):
     config.logger.write(message, is_terminal=True)
 
 
-    train_start_t = timer()
     # Train and sample the data
     for epoch in tqdm(range(config.epoch)):
         if not params['is_train']: break
         # if epoch > 1 and config.is_test: break
 
-        n, avg_loss, time_lst = 0, 0, []
+        n, avg_loss = 0, 0
         # train diffusion model
         for i, batch in enumerate(train_loader):
-            time_start =  timer()
             future, history, pos_w, pos_d = batch # future:(B, T_p, V, F), history: (B, T_h, V, F)
 
             # get x0
@@ -420,8 +420,7 @@ def main(params: dict):
             n += 1
             avg_loss = avg_loss * (n - 1) / n + loss.item() / n
 
-            time_lst.append((timer() - time_start))
-            message = f"{i / len(train_loader) + epoch:6.1f}| {avg_loss:0.3f} {np.sum(time_lst):.1f}s"
+            message = f"{i / len(train_loader) + epoch:6.1f}| {avg_loss:0.3f}"
             # print('\r' + message, end='', flush=True)
 
         config.logger.message_buffer += message
@@ -449,47 +448,44 @@ def main(params: dict):
             break  # Early_stop
 
 
-    # try:
-    #     model = torch.load(model_path, map_location=config.device)
-    #     print('best model loaded from: <<', model_path)
-    # except Exception as err:
-    #     print(err)
-    #     print('load best model failed')
+    try:
+        model = torch.load(model_path, map_location=config.device)
+        print('best model loaded from: <<', model_path)
+    except Exception as err:
+        print(err)
+        print('load best model failed')
 
     # conduct multiple-samples, then report the best
-    # metric_lst = []
-    # for sample_strategy, sample_steps in [('ddpm', 3)]: #[('ddim_multi', 40)]:
-    #     if sample_steps > config.model.N: break
+    metric_lst = []
+    for sample_strategy, sample_steps in [('ddim_multi', 40)]:
+        if sample_steps > config.model.N: break
 
-    #     config.model.sample_strategy = sample_strategy
-    #     config.model.sample_steps = sample_steps
+        config.model.sample_strategy = sample_strategy
+        config.model.sample_steps = sample_steps
 
-    #     model.set_ddim_sample_steps(sample_steps)
-    #     model.set_sample_strategy(sample_strategy)
+        model.set_ddim_sample_steps(sample_steps)
+        model.set_sample_strategy(sample_strategy)
 
-    #     metrics_test = Metric(T_p=config.model.T_h + config.model.T_p)
-    #     model.mode = 'plot'
-    #     metrics, y_true, y_mean, y_var = evals(model, test_loader, epoch, metrics_test, config, clean_data, mode='Test')
-    #     print('OUTPUT SHAPE')
-    #     print(np.shape(y_mean), np.shape(y_var), np.shape(y_true), np.shape(y_mean))
+        metrics_test = Metric(T_p=config.model.T_h + config.model.T_p)
+        evals(model, test_loader, epoch, metrics_test, config, clean_data, mode='test')
+        message = f'sample_strategy:{sample_strategy}, sample_steps:{sample_steps} Final results in test:{metrics_test}\n'
+        config.logger.write(message, is_terminal=True)
 
-    #     message = f'sample_strategy:{sample_strategy}, sample_steps:{sample_steps} Final results in test:{metrics_test}\n'
-    #     config.logger.write(message, is_terminal=True)
-
-    #     params = unfold_dict(config)
-    #     params = dict_merge([params, metrics_test.to_dict()])
-    #     params['best_epoch'] = metrics_val.best_metrics['epoch']
-    #     params['model'] = config.model.epsilon_theta
-    #     save2file(params)
-    #     metric_lst.append(metrics_test.metrics['mae'])
+        params = unfold_dict(config)
+        params = dict_merge([params, metrics_test.to_dict()])
+        params['best_epoch'] = metrics_val.best_metrics['epoch']
+        params['model'] = config.model.epsilon_theta
+        save2file(params)
+        metric_lst.append(metrics_test.metrics['mae'])
 
     # rename log file
-    # log_file, log_name = os.path.split(config.log_path)
-    # new_log_path = os.path.join(log_file, f"[{config.data.name}]mae{min(metric_lst):7.2f}+{log_name}")
+    log_file, log_name = os.path.split(config.log_path)
+    new_log_path = os.path.join(log_file, f"[{config.data.name}]mae{min(metric_lst):7.2f}+{log_name}")
     import shutil
     # os.rename(config.log_path, new_log_path)
-    # shutil.copy(config.log_path, new_log_path)
-    # config.log_path = new_log_path
+    shutil.copy(config.log_path, new_log_path)
+    config.log_path = new_log_path
+
 
     try:
         writer.close()
