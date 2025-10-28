@@ -14,8 +14,8 @@ from utils.common_utils import dir_check, to_device, ws, unfold_dict, dict_merge
 
 from algorithm.dataset import CleanDataset, TrafficDataset
 from algorithm.diffstg.model import DiffSTG, save2file
+import pickle
 
-import matplotlib.pyplot as plt
 
 # %%
 trained_model_path = './output/model/ewz_preprocessed_1day_1hour_50epoch.dm4stg'
@@ -26,71 +26,25 @@ adj_path = os.path.join(DATA_path, 'adj.npy')
 
 # %%
 flow = np.load(flow_path)
-adj = np.load(adj_path) 
-
-flow.shape
-
-# %%
+adj = np.load(adj_path)
 T = flow.shape[0]
-sensor_idx = 2
-plt.plot(range(T), flow[:,sensor_idx,0])
 
-# %%
-config = edict()
-config.model = edict()
 
-T_p = 1
-T_h = 24
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-config.n_samples = 2
-config.device = device
+model = torch.load(trained_model_path, map_location=device, weights_only=False)
 
-config.model.T_p = T_p
-config.model.T_h = T_h
-config.model.V = 50
-config.model.F = 1
-config.model.week_len = 7
-config.model.day_len = 24
-config.model.device = device
-config.model.d_h = 32
-
-# config for diffusion model
-config.model.N = 200
-config.model.sample_steps = 200
-config.model.epsilon_theta = 'UGnet'
-config.model.is_label_condition = True
-config.model.beta_end = 0.02
-config.model.beta_schedule = 'quad'
-config.model.sample_strategy = 'ddpm'
-
-
-# config for UGnet
-config.model.channel_multipliers = [1, 2]  # The list of channel numbers at each resolution.
-config.model.supports_len = 2
-
-# training config
-config.model_name = 'DiffSTG'
-
-config.model.A = adj
-
-# %%
-model = torch.load(trained_model_path, map_location=config.model.device, weights_only=False)
-
-# %%
-config.data = edict()
-config.data.name = 'EWZ_preprocessed'
-config.data.feature_file = os.path.join(DATA_path, 'flow.npy')
-config.data.spatial = os.path.join(DATA_path, 'adj.npy')
-config.data.val_start_idx = int(T * 0.7)
-config.data.test_start_idx = int(T * 0.85)
-config.data.points_per_hour = 1
+with open('./config.pkl', 'rb') as f:
+    config = edict(pickle.load(f))
 
 clean_data = CleanDataset(config)
 
 # %%
 test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
 test_loader = torch.utils.data.DataLoader(test_dataset, 64, shuffle=False)
+
+val_dataset = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.test_start_idx - config.model.T_p + 1), config)
+val_loader = torch.utils.data.DataLoader(val_dataset, 64, shuffle=False)
 
 # %%
 def predict(model, data_loader, config, clean_data, mode='Test'):
@@ -149,9 +103,9 @@ def predict(model, data_loader, config, clean_data, mode='Test'):
     return y_true, y_pred
 
 # %%
-y_true, y_pred = predict(model, test_loader, config, clean_data, mode='test')
-
-np.save('./pred.npy', y_pred)
-np.save('./true.npy', y_true)
+y_true, y_pred = predict(model, val_loader, config, clean_data, mode='Val')
+print('computed predictions')
+np.save('./pred_test.npy', y_pred)
+np.save('./true_test.npy', y_true)
 
 

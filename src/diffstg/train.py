@@ -18,6 +18,7 @@ from algorithm.dataset import CleanDataset, TrafficDataset
 from algorithm.diffstg.model import DiffSTG, save2file
 
 import matplotlib.pyplot as plt
+import io
 
 
 
@@ -363,6 +364,12 @@ def main(params: dict):
     config.logger.write(f"forecast_path:{model_path}\n", is_terminal=False)
     print('forecast_path:', forecast_path)
     dir_check(forecast_path)
+
+    import pickle
+    config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
+
+    with open('./config.pkl', 'wb') as f:
+        pickle.dump(config_savable, f)
 
 
     # log model architecture
