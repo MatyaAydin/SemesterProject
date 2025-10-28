@@ -274,7 +274,7 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
-            A = self.graph_learning_module(x)
+            A = self.graph_learning_module(x, None)
             a1 = asym_adj(A)
             a2 = asym_adj(np.transpose(A))
 
