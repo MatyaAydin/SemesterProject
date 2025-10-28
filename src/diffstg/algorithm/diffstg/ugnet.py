@@ -6,7 +6,7 @@ import math
 import torch.nn.init as init
 
 from .graph_algo import *
-from lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
+from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
 
 """
 Implementation of UGnet
