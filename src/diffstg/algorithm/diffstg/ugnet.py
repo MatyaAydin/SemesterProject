@@ -192,6 +192,7 @@ class UGnet(nn.Module):
         T = self.T_p + self.T_h
         F = self.F = config.F
         self.graph_method = config.graph_method
+        self.device = config.device
 
         self.n_blocks = config.get('n_blocks', 2)
 
@@ -274,7 +275,7 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
-            A = self.graph_learning_module(x, None)
+            A = self.graph_learning_module(x, None).cpu().detach().numpy()
             a1 = asym_adj(A)
             a2 = asym_adj(np.transpose(A))
 
