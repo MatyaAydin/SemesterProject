@@ -18,7 +18,7 @@ import pickle
 
 
 # %%
-trained_model_path = './output/model/ewz_preprocessed_1day_1hour_50epoch.dm4stg'
+trained_model_path = './output/model/ewz_preprocessed_learnable.dm4stg'
 
 DATA_path = './data/dataset/EWZ_preprocessed/'
 flow_path = os.path.join(DATA_path, 'flow.npy')
