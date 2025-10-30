@@ -5,5 +5,7 @@ corel/
 logs/
 image*
 output/
+*.pdf
+*.npy
 
 __pycache__/

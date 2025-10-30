@@ -7,6 +7,7 @@ import torch.nn.init as init
 
 from .graph_algo import *
 from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
+from tsl.nn.layers import DiffConv
 
 """
 Implementation of UGnet
@@ -107,7 +108,12 @@ class ResidualBlock(nn.Module):
         self.tcn2 = TcnBlock(c_out, c_out, kernel_size=kernel_size)
         self.shortcut = nn.Identity() if c_in == c_out else nn.Conv2d(c_in, c_out, (1,1))
         self.t_conv = nn.Conv2d(config.d_h, c_out, (1,1))
-        self.spatial = SpatialBlock(config.supports_len, c_out, c_out)
+
+        if config.gc_type == 'diffconv':
+            self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len)
+
+        else: # vanilla gcn
+            self.spatial = SpatialBlock(config.supports_len, c_out, c_out)
 
         self.norm = nn.LayerNorm([config.V, c_out])
     def forward(self, x, t, A_hat):
@@ -193,6 +199,7 @@ class UGnet(nn.Module):
         F = self.F = config.F
         self.graph_method = config.graph_method
         self.device = config.device
+        self.gc_type = config.gc_type
 
         self.n_blocks = config.get('n_blocks', 2)
 
@@ -284,6 +291,11 @@ class UGnet(nn.Module):
             supports = torch.stack([a1, a2])
         else:
             supports = torch.stack([self.a1, self.a2])
+
+        # TODO: supports should contain edge index and edge weight for diffconv
+
+        if self.gc_type == 'diffconv':
+            pass # TODO use function from knnlayer to get edge_index and edge_weight
 
         for m in self.down:
             x = m(x, t, supports)

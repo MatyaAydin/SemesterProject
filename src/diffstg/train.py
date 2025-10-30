@@ -53,6 +53,7 @@ def get_params():
     parser.add_argument("--T_p", type=int, default=12)
     parser.add_argument("--epoch", type=int, default=300)
     parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
+    parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv or vanilla
 
     # eval
     parser.add_argument('--n_samples', type=int, default=8)
@@ -310,6 +311,9 @@ def main(params: dict):
     config.model.beta_schedule = params["beta_schedule"]
     config.model.sample_strategy = params["ss"]
     config.model.graph_method = params['graph_method']
+    config.model.gc_type = params['gc_type']
+
+
     config.n_samples = params['n_samples']
     config.epoch = params['epoch']
 
@@ -507,7 +511,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('training')
 
 
-    print('GPU:', torch.cuda.current_device())
+    # print('GPU:', torch.cuda.current_device())
 
     try:
         tuner_params = nni.get_next_parameter()
