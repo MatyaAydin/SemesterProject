@@ -360,7 +360,7 @@ def main(params: dict):
     # metrics in val, and test dataset, note that we cannot evaluate the performance in the train dataset
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
-    model_path = config.PATH_MOD + config.trial_name + 'learnablegraph' + model.model_file_name()
+    model_path = config.PATH_MOD + config.trial_name + 'diffconv' + model.model_file_name()
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)
@@ -374,7 +374,7 @@ def main(params: dict):
     import pickle
     config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
 
-    with open('./config_learngraph.pkl', 'wb') as f:
+    with open('./config_diffconv.pkl', 'wb') as f:
         pickle.dump(config_savable, f)
 
 
