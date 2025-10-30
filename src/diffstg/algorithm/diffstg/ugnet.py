@@ -7,7 +7,9 @@ import torch.nn.init as init
 
 from .graph_algo import *
 from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
+from .lib.nn.utils import adj_to_fc_edge_index
 from tsl.nn.layers import DiffConv
+from tsl.ops.connectivity import adj_to_edge_index
 
 """
 Implementation of UGnet
@@ -108,6 +110,7 @@ class ResidualBlock(nn.Module):
         self.tcn2 = TcnBlock(c_out, c_out, kernel_size=kernel_size)
         self.shortcut = nn.Identity() if c_in == c_out else nn.Conv2d(c_in, c_out, (1,1))
         self.t_conv = nn.Conv2d(config.d_h, c_out, (1,1))
+        self.gc_type = config.gc_type
 
         if config.gc_type == 'diffconv':
             self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len)
@@ -128,7 +131,12 @@ class ResidualBlock(nn.Module):
         h = self.norm(h.transpose(1,3)).transpose(1,3) # (B, c_out, V, T)
 
         h = h.transpose(2,3) #(B, c_out, V, T)
-        h = self.spatial(h, A_hat).transpose(2,3) # (B, c_out, V, T)
+        if self.gc_type == 'diffconv':
+            edge_index, edge_weight = adj_to_fc_edge_index(A_hat[0]) if self.training else adj_to_edge_index(A_hat[0]) # recover from torch.stack in supports
+            h = self.spatial(x=x, edge_index=edge_index, edge_weight=edge_weight)
+        else:
+            h = self.spatial(h, A_hat)
+        h = h.transpose(2,3) #(B, c_out, T, V)
         return h + self.shortcut(x)
 
 class DownBlock(nn.Module):

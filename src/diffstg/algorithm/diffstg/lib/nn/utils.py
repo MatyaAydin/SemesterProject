@@ -15,22 +15,12 @@ def maybe_cat_emb(x: Tensor, emb: Optional[Tensor]):
 
 
 def adj_to_fc_edge_index(adjs):
-    # print("adj shape in adj to fc edge index")
-    # print(adjs.shape)
     num_nodes = adjs.shape[-1]
-    # print("num nodes")
-    # print(num_nodes)
-    # print("adj before transpose")
-    # print(adjs.shape)
     adjs = adjs.transpose(-2, -1)
-    # print("adj after transpose")
-    # print(adjs.shape)
     edge_weight = adjs.flatten()
     idx = torch.arange(num_nodes, device=adjs.device)
     edge_index = torch.cartesian_prod(idx, idx).T
     if adjs.dim() == 3:
         edge_index = [edge_index + num_nodes * i for i in range(adjs.size(0))]
         edge_index = torch.cat(edge_index, dim=-1)
-        # print("adj dim 3")
-        # print(edge_index.shape)
     return edge_index, edge_weight
