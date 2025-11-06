@@ -52,12 +52,12 @@ class SpatialBlock(nn.Module):
         init.uniform_(self.b, -bound, bound)
 
     def forward(self, x, Lk):
-        # x: [b, c_in, time, n_nodes] #TODO permute for tsl format
+        # x: [b, c_in, time, n_nodes]
         # Lk: [3, n_nodes, n_nodes]
         if len(Lk.shape) == 2: # if supports_len == 1:
             Lk=Lk.unsqueeze(0)
         x_c = torch.einsum("knm,bitm->bitkn", Lk, x) # use laplacian matrix to extract spatial feature
-        x_gc = torch.einsum("iok,bitkn->botn", self.theta, # Convlution by filter theta
+        x_gc = torch.einsum("iok,bitkn->botn", self.theta, # Convolution by filter theta
                             x_c) + self.b  # [b, c_out, time, n_nodes]
         return torch.relu(x_gc + x) # residual connection
 
@@ -113,7 +113,7 @@ class ResidualBlock(nn.Module):
         self.gc_type = config.gc_type
 
         if config.gc_type == 'diffconv':
-            self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len)
+            self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len, activation='relu')
 
         else: # vanilla gcn
             self.spatial = SpatialBlock(config.supports_len, c_out, c_out)
@@ -130,13 +130,15 @@ class ResidualBlock(nn.Module):
 
         h = self.norm(h.transpose(1,3)).transpose(1,3) # (B, c_out, V, T)
 
-        h = h.transpose(2,3) #(B, c_out, V, T)
         if self.gc_type == 'diffconv':
+            h = h.transpose(1, 3)  # (B, c_out, V, T) -> (B, T, V, c_out)
             edge_index, edge_weight = adj_to_fc_edge_index(A_hat[0]) if self.training else adj_to_edge_index(A_hat[0]) # recover from torch.stack in supports
-            h = self.spatial(x=x, edge_index=edge_index, edge_weight=edge_weight)
+            h = self.spatial(x=h, edge_index=edge_index, edge_weight=edge_weight)
+            h = h.transpose(1, 3) # (B, T, V, c_out) -> (B, c_out, T, V)
         else:
+            h = h.transpose(2,3) #(B, c_out, V, T)
             h = self.spatial(h, A_hat)
-        h = h.transpose(2,3) #(B, c_out, T, V)
+            h = h.transpose(2,3) #(B, c_out, T, V)
         return h + self.shortcut(x)
 
 class DownBlock(nn.Module):
@@ -164,7 +166,7 @@ class Downsample(nn.Module):
         return self.conv(x)
 
 
-class  UpBlock(nn.Module):
+class UpBlock(nn.Module):
     def __init__(self, c_in, c_out, config):
         super().__init__()
         self.res = ResidualBlock(c_in + c_out, c_out, config, kernel_size=3)
@@ -300,18 +302,15 @@ class UGnet(nn.Module):
         else:
             supports = torch.stack([self.a1, self.a2])
 
-        # TODO: supports should contain edge index and edge weight for diffconv
-
-        if self.gc_type == 'diffconv':
-            pass # TODO use function from knnlayer to get edge_index and edge_weight
 
         for m in self.down:
+            # print('input shape in down block:', x.shape)
             x = m(x, t, supports)
             h.append(x)
-
+        # print('input shape in middle block:', x.shape)
         x = self.middle(x, t, supports)
-
         for m in self.up:
+            # print('input shape in up block:', x.shape)
             if isinstance(m,  Upsample):
                 x = m(x, t, supports)
             else:

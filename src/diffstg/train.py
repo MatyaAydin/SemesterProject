@@ -102,7 +102,7 @@ def default_config(data='AIR_BJ'):
     if config.data.name == 'AIR_GZ':
         config.data.num_features = 1
         config.data.num_vertices = 41
-        config.data.points_per_hour = 1 # TODO adpt to data
+        config.data.points_per_hour = 1
         config.data.val_start_idx = int(8760 * 10 / 12) #
         config.data.test_start_idx = int(8160 * 11 / 12)
 
@@ -129,6 +129,7 @@ def default_config(data='AIR_BJ'):
         cuda_id = GpuId2CudaId(gpu_id)
         torch.cuda.set_device(f"cuda:{cuda_id}")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = 'cpu' # for debug
     print('Using device:', device)
 
     # model config
@@ -141,6 +142,7 @@ def default_config(data='AIR_BJ'):
     config.model.week_len = 7
     config.model.day_len = config.data.points_per_hour * 24
     config.model.device = device
+    # config.model.device = 'cpu'
     config.model.d_h = 32
 
     # config for diffusion model
@@ -155,7 +157,7 @@ def default_config(data='AIR_BJ'):
     config.n_samples = 2
 
     # config for UGnet
-    config.model.channel_multipliers = [1, 2]  # The list of channel numbers at each resolution.
+    config.model.channel_multipliers = [1, 2]
     config.model.supports_len = 2
 
     # training config
@@ -169,6 +171,7 @@ def default_config(data='AIR_BJ'):
     config.early_stop = 10
     config.start_epoch = 5
     config.device = device
+    # config.device = 'cpu'
     config.logger = Logger()
 
 
