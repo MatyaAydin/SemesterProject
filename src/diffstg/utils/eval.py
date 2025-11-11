@@ -205,16 +205,22 @@ def calc_mis(target, forecast, alpha = 0.05):
 
 if __name__ == "__main__":
 
-    methods = ['learngraph', 'diffconv']
+    methods = ['learngraph', 'diffconv', 'baseline']
     metrics = {}
 
 
 
     for m in methods:
 
-        y_true = np.load(f'../preds/true_{m}.npy')
-        y_pred = np.load(f'../preds/pred_{m}.npy')
-
+        if m == 'baseline':
+            y_true = np.load(f'../preds/true.npy')
+            y_pred = np.load(f'../preds/pred.npy')
+            # print(y_true.shape, y_pred.shape)
+        
+        else:
+            y_true = np.load(f'../preds/true_val_{m}.npy')
+            y_pred = np.load(f'../preds/pred_val_{m}.npy')
+            # print(y_true.shape, y_pred.shape)
         y_pred = np.mean(y_pred, axis=1)
 
         # print(y_true.shape, y_pred.shape)
@@ -229,7 +235,7 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(metrics)
 
-    df['learngraph_better'] = (df['diffconv'] - df['learngraph']) > 0
+    df['best_method'] = df[['learngraph', 'diffconv', 'baseline']].apply(lambda row: row.idxmin(), axis=1)
     print(df)
 
 
