@@ -204,23 +204,35 @@ def calc_mis(target, forecast, alpha = 0.05):
 
 
 if __name__ == "__main__":
-    # test for CRPS
-    B, T, V = 32, 12, 36
-    n_sample = 100
-    target = torch.randn((B, T, V))
-    forecast = torch.randn((B, n_sample, T, V))
-    label = target.unsqueeze(1).expand_as(forecast)
-    eval_points = torch.randn_like(target)
 
-    crps = calc_quantile_CRPS(target, forecast, eval_points)
-    print('crps:', crps)
+    methods = ['learngraph', 'diffconv']
+    metrics = {}
 
-    crps = calc_quantile_CRPS(target, label, eval_points)
-    print('crps:', crps)
 
-    mis = calc_mis(target, forecast)
-    print('mis:', mis)
 
-    mis = calc_mis(target, label)
-    print('mis:', mis)
+    for m in methods:
+
+        y_true = np.load(f'../preds/true_{m}.npy')
+        y_pred = np.load(f'../preds/pred_{m}.npy')
+
+        y_pred = np.mean(y_pred, axis=1)
+
+        # print(y_true.shape, y_pred.shape)
+
+
+        metric = Metric(T_p=1)
+
+        mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
+
+        metrics[m] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+
+
+    df = pd.DataFrame(metrics)
+
+    df['learngraph_better'] = (df['diffconv'] - df['learngraph']) > 0
+    print(df)
+
+
+
+
 
