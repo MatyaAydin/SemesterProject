@@ -319,6 +319,11 @@ class UGnet(nn.Module):
 
         if self.graph_method == 'learnable':
             # TODO: are parameters of graph learning module trained?
+            """
+            I see two possible ways to do it, I don't know which one makes more sense:
+            * adapt all code using the adjacency matrix A to use a torch tensor instead of numpy array so I do not have to detach
+            * manually adding gradient to a1 and a2 with .requires_grad()
+            """
             A = self.graph_learning_module(x, None).cpu().detach().numpy()
             a1 = asym_adj(A)
             a2 = asym_adj(np.transpose(A))
