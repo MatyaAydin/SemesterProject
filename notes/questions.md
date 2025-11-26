@@ -7,6 +7,10 @@
 * Hyperparameter optimization: no more than two graph layers, temporal: 1, 3, 5, hidden size: power of two: 16, 32, 64, k = 4 (optuna)
 * How sparse should be graph be ? Use quantile
 * Memory error with lstm cell during training despite only ~300k parameters
+* Use adj.npy normalized as prior (+ Laplace smoothing to get nonzero proba) ? --> try init if time
+
+* Electricitybenchmark: no get_connectivity. Try other tsl dataset or do same trick with covariance ? use elergon
+* conservation laws ? source node; sum of neighbors = source [OPTIONAL, does not work]
 
 ![alt text](./images/image-8.png)
 
@@ -14,13 +18,37 @@ can drop but try to cmp with spatial block in UGNET
 
 **New**:
 
-* How to access variance in the prediction ? USE N_sample
-* Preds seem to overshoot. Might be because Outliers are not removed in ewz_preprocessed. Ask for script so I can merge all preprocessing in one.
-* try to add graph learning in ugnet: show where in code. Use adj.npy normalized as prior (+ Laplace smoothing to get nonzero proba) ?
+* Ask opinion on method for anomaly detection (posteriori) in time series with diffusion model, if irrelevant will do more usual thing. How to assess quality ? (use def to get supervised dataset ?) no label, just show on real data
+can add anomaly in random time interval, drift fault
+current ideas:
+    * pred is outside mean +- std DONE
+    * error too large
+    * compare with most correlated sensors
 
-ablation study: comapre with vs without graph learning, and other blocks and eletrical dataset
+Done this since last meeting:
+all on ewz_daily (much shorter training time)
 
-anomaly detection: build many c% CI and classify anomalies
+* preds on Chronos
+* retrained with 8 and 16 neighbors
+* retrained with GRU instead of causal convolution
+* show results: looks bad, do we just go with diffconv ? or ask to take a look at code after I clean to be sure everything looks correct ?
 
-change block in ugnet one by one then compare
-IOT: electricty data: open dataset and no need to learn graph (just to benchmark) use get_connectivity from tsl and compare with knn lernable
+questions:
+
+* Chronos trained on train + val: unfair comparison ? If I retrain on train + val after I can't do early stopping: dont use validation, fix epochs
+* should context in chronos be T_history or whole df ?
+* update on deadline ?
+* train on ewz daily preprocessed is really fast --> optuna ? but is it fair comparison ?
+* train on one of the dataset from diffstg repo to be sure that there is no problem ?
+
+Next steps:
+
+* try pems08 with vanilla baseline and CSDI to check
+* retrain on electricity benchmark once I'm sure about what I'm doing
+* relevant to try others graph convolution/temporal blocks?
+* try other graph learning methods: dynamic of fixed, when in training etc
+* retrain with larger horizon
+* start report: template/structure in particular ?
+* anomaly detection: case study at the end, first show that forecasting works
+
+presentation: after 12th of january

@@ -54,6 +54,7 @@ def get_params():
     parser.add_argument("--epoch", type=int, default=300)
     parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
     parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv or vanilla
+    parser.add_argument("--temporal_type", type=str, default='conv') # conv or gru 
 
     # eval
     parser.add_argument('--n_samples', type=int, default=8)
@@ -122,6 +123,22 @@ def default_config(data='AIR_BJ'):
         config.data.points_per_hour = 1
         config.data.val_start_idx = int(52888 * 0.7)
         config.data.test_start_idx = int(52888 * 0.85)
+
+    if config.data.name == 'ewz_daily':
+        print('load EWZ daily data settings')
+        config.data.num_features = 1
+        config.data.num_vertices = 59
+        config.data.points_per_hour = 1 / 24
+        config.data.val_start_idx = int(3501 * 0.7)
+        config.data.test_start_idx = int(3501 * 0.85)
+
+    if config.data.name == 'electricity_benchmark':
+        print('load electricty benchmark settings')
+        config.data.num_features = 1
+        config.data.num_vertices = 316
+        config.data.points_per_hour = 1
+        config.data.val_start_idx = int(25065 * 0.7)
+        config.data.test_start_idx = int(25065 * 0.85)
 
     gpu_id = GPU().get_usefuel_gpu(max_memory=6000, condidate_gpu_id=[0,1,2,3,4,6,7,8])
     config.gpu_id = gpu_id
@@ -315,6 +332,7 @@ def main(params: dict):
     config.model.sample_strategy = params["ss"]
     config.model.graph_method = params['graph_method']
     config.model.gc_type = params['gc_type']
+    config.model.temporal_type = params['temporal_type']
 
 
     config.n_samples = params['n_samples']
@@ -350,6 +368,7 @@ def main(params: dict):
 
     val_dataset = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.test_start_idx - config.model.T_p + 1), config)
     # val_dataset   = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.val_start_idx + config.model.T_p + 512), config)
+
     val_loader = torch.utils.data.DataLoader(val_dataset, 64, shuffle=False)
 
     test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
@@ -363,7 +382,7 @@ def main(params: dict):
     # metrics in val, and test dataset, note that we cannot evaluate the performance in the train dataset
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
-    model_path = config.PATH_MOD + config.trial_name + 'diffconv' + model.model_file_name()
+    model_path = config.PATH_MOD + config.trial_name + model.model_file_name()
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)
@@ -377,7 +396,7 @@ def main(params: dict):
     import pickle
     config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
 
-    with open('./config_diffconv.pkl', 'wb') as f:
+    with open(f'./configs/config_{config.data.name}_{config.model.gc_type}_{config.model.graph_method}_{config.model.temporal_type}.pkl', 'wb') as f:
         pickle.dump(config_savable, f)
 
 
@@ -428,7 +447,7 @@ def main(params: dict):
             avg_loss = avg_loss * (n - 1) / n + loss.item() / n
 
             message = f"{i / len(train_loader) + epoch:6.1f}| {avg_loss:0.3f}"
-            # print('\r' + message, end='', flush=True)
+            print('\r' + message, end='', flush=True)
 
         config.logger.message_buffer += message
 

@@ -135,36 +135,36 @@ class Metric(object):
 
 
 # metric for Probabilistic evaluation
-import torch
-def quantile_loss(target, forecast, q: float, eval_points) -> float:
-    return 2 * torch.sum(
-        torch.abs((forecast - target) * eval_points * ((target <= forecast) * 1.0 - q))
-    )
+# import torch
+# def quantile_loss(target, forecast, q: float, eval_points) -> float:
+#     return 2 * torch.sum(
+#         torch.abs((forecast - target) * eval_points * ((target <= forecast) * 1.0 - q))
+#     )
 
-def calc_denominator(target, eval_points):
-    return torch.sum(torch.abs(target * eval_points))
+# def calc_denominator(target, eval_points):
+#     return torch.sum(torch.abs(target * eval_points))
 
 
-def calc_quantile_CRPS(target, forecast, eval_points):
-    """
-    target: (B, T, V), torch.Tensor
-    forecast: (B, n_sample, T, V), torch.Tensor
-    eval_points: (B, T, V): which values should be evaluated,
-    """
+# def calc_quantile_CRPS(target, forecast, eval_points):
+#     """
+#     target: (B, T, V), torch.Tensor
+#     forecast: (B, n_sample, T, V), torch.Tensor
+#     eval_points: (B, T, V): which values should be evaluated,
+#     """
 
-    # target = target * scaler + mean_scaler
-    # forecast = forecast * scaler + mean_scaler
-    quantiles = np.arange(0.05, 1.0, 0.05)
-    denom = calc_denominator(target, eval_points)
-    CRPS = 0
-    for i in range(len(quantiles)):
-        q_pred = []
-        for j in range(len(forecast)):
-            q_pred.append(torch.quantile(forecast[j : j + 1], quantiles[i], dim=1))
-        q_pred = torch.cat(q_pred, 0)
-        q_loss = quantile_loss(target, q_pred, quantiles[i], eval_points)
-        CRPS += q_loss / denom
-    return CRPS.item() / len(quantiles)
+#     # target = target * scaler + mean_scaler
+#     # forecast = forecast * scaler + mean_scaler
+#     quantiles = np.arange(0.05, 1.0, 0.05)
+#     denom = calc_denominator(target, eval_points)
+#     CRPS = 0
+#     for i in range(len(quantiles)):
+#         q_pred = []
+#         for j in range(len(forecast)):
+#             q_pred.append(torch.quantile(forecast[j : j + 1], quantiles[i], dim=1))
+#         q_pred = torch.cat(q_pred, 0)
+#         q_loss = quantile_loss(target, q_pred, quantiles[i], eval_points)
+#         CRPS += q_loss / denom
+#     return CRPS.item() / len(quantiles)
 
 
 def MIS(
@@ -190,53 +190,80 @@ def MIS(
     return numerator
 
 
-def calc_mis(target, forecast, alpha = 0.05):
-    """
-       target: (B, T, V),
-       forecast: (B, n_sample, T, V)
-    """
-    return MIS(
-        target = target.cpu().numpy(),
-        lower_quantile = torch.quantile(forecast, alpha / 2, dim=1).cpu().numpy(),
-        upper_quantile = torch.quantile(forecast, 1.0 - alpha / 2, dim=1).cpu().numpy(),
-        alpha = alpha,
-    )
+# def calc_mis(target, forecast, alpha = 0.05):
+#     """
+#        target: (B, T, V),
+#        forecast: (B, n_sample, T, V)
+#     """
+#     return MIS(
+#         target = target.cpu().numpy(),
+#         lower_quantile = torch.quantile(forecast, alpha / 2, dim=1).cpu().numpy(),
+#         upper_quantile = torch.quantile(forecast, 1.0 - alpha / 2, dim=1).cpu().numpy(),
+#         alpha = alpha,
+#     )
 
 
 if __name__ == "__main__":
 
-    methods = ['learngraph', 'diffconv', 'baseline']
-    metrics = {}
+    def run_eval(dataset):
+
+        methods = ['diffconv_fixed', 'vanilla_learnable', 'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor', 'vanilla_fixed_gru', 'vanilla_fixed',]
+        if dataset == 'electricity_benchmark':
+            methods = ['vanilla_learnable', 'vanilla_fixed']
+        metrics = {}
 
 
 
-    for m in methods:
+        for m in methods:
 
-        if m == 'baseline':
-            y_true = np.load(f'../preds/true.npy')
-            y_pred = np.load(f'../preds/pred.npy')
+            y_true = np.load(f'../preds/true_{dataset}_{m}.npy')
+            y_pred = np.load(f'../preds/pred_{dataset}_{m}.npy')
+            y_pred = np.mean(y_pred, axis=1)
+
             # print(y_true.shape, y_pred.shape)
+
+
+            metric = Metric(T_p=1)
+
+            mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
+
+            metrics[m] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+
+
+        y_true_chronos = np.load(f'../preds/{d}_true_chronos.npy')
+        y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
+        mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
+
+        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+
+        # computed in other folder
+
+        rmse = 0.5576574046571184
+        mse = rmse ** 2
+        mae = 0.08680029203277909
+        mape = 56.32928901284428
+        metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+
+
+        df = pd.DataFrame(metrics)
+
+        df.rename(columns={'vanilla_fixed':'baseline', 'diffconv_fixed':'diffconv',
+                           'vanilla_learnable': '4_k',
+                           'vanilla_learnable_conv_8_neighbor': '8_k',
+                           'vanilla_learnable_conv_16_neighbor': '16_k',
+                           'vanilla_fixed_gru': 'gru',
+                           }, inplace=True)
+        return df
         
-        else:
-            y_true = np.load(f'../preds/true_val_{m}.npy')
-            y_pred = np.load(f'../preds/pred_val_{m}.npy')
-            # print(y_true.shape, y_pred.shape)
-        y_pred = np.mean(y_pred, axis=1)
 
-        # print(y_true.shape, y_pred.shape)
+    datasets = ['ewz_daily']
+    for d in datasets:
+        df = run_eval(d)
+        df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
 
-
-        metric = Metric(T_p=1)
-
-        mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
-
-        metrics[m] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
-
-
-    df = pd.DataFrame(metrics)
-
-    df['best_method'] = df[['learngraph', 'diffconv', 'baseline']].apply(lambda row: row.idxmin(), axis=1)
-    print(df)
+        print("="*30 + d + "="*30)
+        print(df)
+        print("\n")
 
 
 

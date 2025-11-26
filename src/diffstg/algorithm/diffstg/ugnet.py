@@ -10,6 +10,7 @@ from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
 from .lib.nn.utils import adj_to_fc_edge_index
 from tsl.nn.layers import DiffConv
 from tsl.ops.connectivity import adj_to_edge_index
+from tsl.nn.blocks import RNN
 
 """
 Implementation of UGnet
@@ -72,27 +73,49 @@ class Chomp(nn.Module):
 
 class TcnBlock(nn.Module):
     """ Temporal convolution block"""
-    def __init__(self, c_in, c_out, kernel_size, dilation_size=1, droupout=0.0):
+    def __init__(self, c_in, c_out, kernel_size, config, dilation_size=1, droupout=0.0):
         super().__init__()
-        self.kernel_size = kernel_size
-        self.dilation_size = dilation_size
-        self.padding = (self.kernel_size - 1) * self.dilation_size
 
-        self.conv = nn.Conv2d(c_in, c_out, kernel_size=(3, self.kernel_size), padding=(1, self.padding), dilation=(1, self.dilation_size))
+        self.operation_type = config.temporal_type
 
-        self.chomp = Chomp(self.padding)
-        self.drop =  nn.Dropout(droupout)
+        if self.operation_type == 'conv':
+            self.kernel_size = kernel_size
+            self.dilation_size = dilation_size
+            self.padding = (self.kernel_size - 1) * self.dilation_size
 
-        self.net = nn.Sequential(self.conv, self.chomp, self.drop)
+            self.conv = nn.Conv2d(c_in, c_out, kernel_size=(3, self.kernel_size), padding=(1, self.padding), dilation=(1, self.dilation_size))
+
+            self.chomp = Chomp(self.padding)
+            self.drop =  nn.Dropout(droupout)
+
+            self.net = nn.Sequential(self.conv, self.chomp, self.drop)
+
+            
+
+        else:
+            self.net = RNN(
+            input_size=c_in,
+            hidden_size=c_in,
+            return_only_last_state=True,
+            n_layers=1,
+            dropout=droupout,
+            cell='gru')
 
         self.shortcut = nn.Conv2d(c_in, c_out, kernel_size=(1, 1)) if c_in != c_out else None
 
 
     def forward(self, x):
         # x: (B, C_in, V, T) -> (B, C_out, V, T)
-        out = self.net(x)
-        x_skip = x if self.shortcut is None else self.shortcut(x)
 
+        if self.operation_type == 'conv':
+            out = self.net(x)
+        else:
+            # VERIFY
+            x = x.transpose(1, 3)
+            out = self.net(x)
+            out = out.transpose(1, 3)
+    
+        x_skip = x if self.shortcut is None else self.shortcut(x)
         return out + x_skip
 
 class ResidualBlock(nn.Module):
@@ -106,8 +129,8 @@ class ResidualBlock(nn.Module):
             output:(B, c_out, V, T)
         """
         super().__init__()
-        self.tcn1 = TcnBlock(c_in, c_out, kernel_size=kernel_size)
-        self.tcn2 = TcnBlock(c_out, c_out, kernel_size=kernel_size)
+        self.tcn1 = TcnBlock(c_in, c_out, kernel_size=kernel_size, config=config)
+        self.tcn2 = TcnBlock(c_out, c_out, kernel_size=kernel_size, config=config)
         self.shortcut = nn.Identity() if c_in == c_out else nn.Conv2d(c_in, c_out, (1,1))
         self.t_conv = nn.Conv2d(config.d_h, c_out, (1,1))
         self.gc_type = config.gc_type
@@ -292,7 +315,9 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
-            A = self.graph_learning_module(x, None).cpu().detach().numpy()
+            A = self.graph_learning_module(x, None).cpu().detach().numpy() #does it still update gradients ?
+
+            # TODO modify
             a1 = asym_adj(A)
             a2 = asym_adj(np.transpose(A))
 

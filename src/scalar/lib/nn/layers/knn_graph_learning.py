@@ -74,9 +74,6 @@ class DifferentiableKnnGraphLayer(nn.Module):
         adj = self.sampler(scores, inference_mode=self.inference_mode)
         if self.n_dummies > 0:
             adj = adj[..., :-self.n_dummies]
-
-        # print("ADJ SHAPE")
-        # print(adj.shape)
         return adj
 
     def forward(self, x, emb: Tensor):
