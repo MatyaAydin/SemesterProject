@@ -8,5 +8,8 @@ output/
 *.pdf
 *.npy
 *.out
+*.pt
+*.dm4stg
+*.pkl
 
 __pycache__/

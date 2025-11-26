@@ -54,7 +54,8 @@ def get_params():
     parser.add_argument("--epoch", type=int, default=300)
     parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
     parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv or vanilla
-    parser.add_argument("--temporal_type", type=str, default='conv') # conv or gru 
+    parser.add_argument("--temporal_type", type=str, default='conv') # conv or gru
+    parser.add_argument("--k", type=int, default=4)  
 
     # eval
     parser.add_argument('--n_samples', type=int, default=8)
@@ -333,7 +334,7 @@ def main(params: dict):
     config.model.graph_method = params['graph_method']
     config.model.gc_type = params['gc_type']
     config.model.temporal_type = params['temporal_type']
-
+    config.model.k = params['k']
 
     config.n_samples = params['n_samples']
     config.epoch = params['epoch']
@@ -396,7 +397,7 @@ def main(params: dict):
     import pickle
     config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
 
-    with open(f'./configs/config_{config.data.name}_{config.model.gc_type}_{config.model.graph_method}_{config.model.temporal_type}.pkl', 'wb') as f:
+    with open(f'./configs/config_{config.data.name}_{config.model.gc_type}_{config.model.graph_method}_{config.model.temporal_type}_{config.model.k}_neighbor.pkl', 'wb') as f:
         pickle.dump(config_savable, f)
 
 
@@ -414,6 +415,7 @@ def main(params: dict):
 
 
     # Train and sample the data
+    model.train()
     for epoch in tqdm(range(config.epoch)):
         if not params['is_train']: break
         # if epoch > 1 and config.is_test: break
@@ -460,6 +462,8 @@ def main(params: dict):
 
         if epoch >= config.start_epoch:
             evals(model, val_loader, epoch, metrics_val, config, clean_data, mode='Val')
+            # re set model in training mode after eval
+            model.train()
             scheduler.step(metrics_val.metrics['mae'])
 
         if metrics_val.best_metrics['epoch'] == epoch:
