@@ -7,7 +7,6 @@ image*
 output/
 *.pdf
 *.npy
-*.run
 *.out
 
 __pycache__/
