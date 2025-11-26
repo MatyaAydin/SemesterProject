@@ -92,6 +92,7 @@ class TcnBlock(nn.Module):
 
 
         else:
+            # TODO : RNN implementation
             self.net = RNN(
                 input_size=c_in,
                 hidden_size=c_out,
@@ -109,12 +110,14 @@ class TcnBlock(nn.Module):
             out = self.net(x)
             x_skip = x if self.shortcut is None else self.shortcut(x)
             return out + x_skip
+        
+        # TODO : RNN forward pass
         else:
             x_original = x  # Save for skip connection
             x = x.transpose(1, 3)  # (B, C_in, V, T) -> (B, T, V, C_in)
             out = self.net(x)  # RNN processing
             out = out.transpose(1, 3)  # (B, T, V, C_out) -> (B, C_out, V, T)
-            out = self.drop(out)  # Apply dropout
+            out = self.drop(out)
             x_skip = x_original if self.shortcut is None else self.shortcut(x_original)
             return out + x_skip
 
@@ -135,6 +138,7 @@ class ResidualBlock(nn.Module):
         self.t_conv = nn.Conv2d(config.d_h, c_out, (1,1))
         self.gc_type = config.gc_type
 
+        # TODO: diffusion convolution implementation
         if config.gc_type == 'diffconv':
             self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len, activation='relu')
 
@@ -145,16 +149,13 @@ class ResidualBlock(nn.Module):
     def forward(self, x, t, A_hat):
         # x: (B, c_in, V, T), return (B, c_out, V, T)
 
-        # print("BEFORE TCN1")
         h = self.tcn1(x)
-        # print("AFTER TCN1")
         h += self.t_conv(t[:, :, None, None])
-        # print("BEFORE TCN2")
         h = self.tcn2(h)
-        # print("AFTER TCN2")
 
         h = self.norm(h.transpose(1,3)).transpose(1,3) # (B, c_out, V, T)
 
+        # TODO: diffusion convolution forward pass
         if self.gc_type == 'diffconv':
             h = h.transpose(1, 3)  # (B, c_out, V, T) -> (B, T, V, c_out)
             edge_index, edge_weight = adj_to_fc_edge_index(A_hat[0]) if self.training else adj_to_edge_index(A_hat[0]) # recover from torch.stack in supports
@@ -279,8 +280,8 @@ class UGnet(nn.Module):
         self.x_proj = nn.Conv2d(self.F, self.d_h, (1,1))
         self.out = nn.Sequential(nn.Conv2d(self.d_h, self.F, (1,1)),
                                  nn.Linear(2 * T, T),)
-        # for gcn
-
+        
+        # TODO : graph learning initialization
         self.graph_learning_module = DifferentiableKnnGraphLayer(
             n_nodes=config.V,
             k=config.k,
@@ -317,6 +318,7 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
+            # TODO: are parameters of graph learning module trained?
             A = self.graph_learning_module(x, None).cpu().detach().numpy()
             a1 = asym_adj(A)
             a2 = asym_adj(np.transpose(A))
