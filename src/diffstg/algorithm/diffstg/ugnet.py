@@ -324,12 +324,10 @@ class UGnet(nn.Module):
             * adapt all code using the adjacency matrix A to use a torch tensor instead of numpy array so I do not have to detach
             * manually adding gradient to a1 and a2 with .requires_grad()
             """
-            A = self.graph_learning_module(x, None).cpu().detach().numpy()
-            a1 = asym_adj(A)
-            a2 = asym_adj(np.transpose(A))
+            A = self.graph_learning_module(x, None)
+            a1 = asym_adj_torch(A)
+            a2 = asym_adj_torch(torch.transpose(A, 0, 1))
 
-            a1 = torch.from_numpy(a1).to(self.device)
-            a2 = torch.from_numpy(a2).to(self.device)
             supports = torch.stack([a1, a2])
         else:
             supports = torch.stack([self.a1, self.a2])

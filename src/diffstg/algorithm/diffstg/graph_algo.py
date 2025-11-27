@@ -2,6 +2,7 @@
 import os,sys
 import pickle
 import numpy as np
+import torch
 
 import scipy.sparse as sp
 from scipy.sparse import linalg
@@ -89,4 +90,17 @@ def asym_adj(adj):
     d_inv[np.isinf(d_inv)] = 0.
     d_mat = sp.diags(d_inv)
     return d_mat.dot(adj).astype(np.float32).todense()
+
+
+def asym_adj_torch(adj):
+    rowsum = adj.sum(dim=1)  # shape: [N]
+    
+    d_inv = torch.pow(rowsum + 1e-6, -1)
+
+    d_inv[torch.isinf(d_inv)] = 0.
+    
+    d_mat = torch.diag(d_inv)
+    normalized_adj = torch.matmul(d_mat, adj)
+    
+    return normalized_adj
 
