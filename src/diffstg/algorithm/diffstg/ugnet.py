@@ -8,7 +8,7 @@ import torch.nn.init as init
 from .graph_algo import *
 from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
 from .lib.nn.utils import adj_to_fc_edge_index
-from tsl.nn.layers import DiffConv
+from tsl.nn.layers import DiffConv, NodeEmbedding
 from tsl.ops.connectivity import adj_to_edge_index
 from tsl.nn.blocks import RNN
 
@@ -92,7 +92,7 @@ class TcnBlock(nn.Module):
 
 
         else:
-            # TODO : RNN implementation
+            # RNN implementation
             self.net = RNN(
                 input_size=c_in,
                 hidden_size=c_out,
@@ -111,7 +111,7 @@ class TcnBlock(nn.Module):
             x_skip = x if self.shortcut is None else self.shortcut(x)
             return out + x_skip
         
-        # TODO : RNN forward pass
+        # RNN forward pass
         else:
             x_original = x  # Save for skip connection
             x = x.transpose(1, 3)  # (B, C_in, V, T) -> (B, T, V, C_in)
@@ -138,7 +138,7 @@ class ResidualBlock(nn.Module):
         self.t_conv = nn.Conv2d(config.d_h, c_out, (1,1))
         self.gc_type = config.gc_type
 
-        # TODO: diffusion convolution implementation
+        # diffusion convolution implementation
         if config.gc_type == 'diffconv':
             self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len, activation='relu')
 
@@ -155,7 +155,7 @@ class ResidualBlock(nn.Module):
 
         h = self.norm(h.transpose(1,3)).transpose(1,3) # (B, c_out, V, T)
 
-        # TODO: diffusion convolution forward pass
+        # diffusion convolution forward pass
         if self.gc_type == 'diffconv':
             h = h.transpose(1, 3)  # (B, c_out, V, T) -> (B, T, V, c_out)
             edge_index, edge_weight = adj_to_fc_edge_index(A_hat[0]) if self.training else adj_to_edge_index(A_hat[0]) # recover from torch.stack in supports
@@ -238,6 +238,8 @@ class UGnet(nn.Module):
         self.gc_type = config.gc_type
 
         self.n_blocks = config.get('n_blocks', 2)
+        # for static graph learning
+        self.node_emb = NodeEmbedding(config.V, self.d_h) if self.graph_method == 'learnable_static' else None
 
         # number of resolutions
         n_resolutions = len(config.channel_multipliers)
@@ -281,7 +283,7 @@ class UGnet(nn.Module):
         self.out = nn.Sequential(nn.Conv2d(self.d_h, self.F, (1,1)),
                                  nn.Linear(2 * T, T),)
         
-        # TODO : graph learning initialization
+        # graph learning initialization
         self.graph_learning_module = DifferentiableKnnGraphLayer(
             n_nodes=config.V,
             k=config.k,
@@ -318,17 +320,20 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
-            # TODO: are parameters of graph learning module trained?
-            """
-            I see two possible ways to do it, I don't know which one makes more sense:
-            * adapt all code using the adjacency matrix A to use a torch tensor instead of numpy array so I do not have to detach
-            * manually adding gradient to a1 and a2 with .requires_grad()
-            """
             A = self.graph_learning_module(x, None)
             a1 = asym_adj_torch(A)
             a2 = asym_adj_torch(torch.transpose(A, 0, 1))
 
             supports = torch.stack([a1, a2])
+        elif self.graph_method == 'learnable_static':
+            num_nodes = x.shape[2]
+            emb = self.node_emb().view(1, 1, num_nodes, -1)
+            A = self.graph_learning_module(emb, None)
+            a1 = asym_adj_torch(A)
+            a2 = asym_adj_torch(torch.transpose(A, 0, 1))
+
+            supports = torch.stack([a1, a2])
+            
         else:
             supports = torch.stack([self.a1, self.a2])
 
