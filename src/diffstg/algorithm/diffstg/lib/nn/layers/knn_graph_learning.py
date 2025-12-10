@@ -87,7 +87,7 @@ class DifferentiableKnnGraphLayer(nn.Module):
         else:
             n_samples = 1
 
-        n_samples = 1 # TODO temporary fix, might not be optimal
+        # n_samples = 1 # TODO temporary fix, might not be optimal
         adj = self.sample_adj(n_samples=n_samples)
         # DiffSTG expects an adjacency matrix
         if self.mode == 'diffSTG':

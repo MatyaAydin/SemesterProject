@@ -37,18 +37,18 @@ questions:
 
 * Chronos trained on train + val: unfair comparison ? If I retrain on train + val after I can't do early stopping: dont use validation, fix epochs
 * should context in chronos be T_history or whole df ?
-* update on deadline ?
 * train on ewz daily preprocessed is really fast --> optuna ? but is it fair comparison ?
 * train on one of the dataset from diffstg repo to be sure that there is no problem ?
 
 Next steps:
 
-* try pems08 with vanilla baseline and CSDI to check
+* try pems08 with vanilla baseline and CSDI to check --> dimension prb
 * retrain on electricity benchmark once I'm sure about what I'm doing
 * relevant to try others graph convolution/temporal blocks?
 * try other graph learning methods: dynamic of fixed, when in training etc
 * retrain with larger horizon
-* start report: template/structure in particular ?
 * anomaly detection: case study at the end, first show that forecasting works
 
-presentation: after 12th of january
+* CSDI: scalar only but pems08 has 3 features per nodes
+* feedback about code ?
+* deadline ?

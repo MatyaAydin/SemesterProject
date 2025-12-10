@@ -207,7 +207,9 @@ if __name__ == "__main__":
 
     def run_eval(dataset):
 
-        methods = ['diffconv_fixed', 'vanilla_learnable', 'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor', 'vanilla_fixed_gru', 'vanilla_fixed',]
+        methods = ['diffconv_fixed', 'vanilla_fixed_gru', 'vanilla_fixed',
+                   'vanilla_learnable', 'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
+                   'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor']
         if dataset == 'electricity_benchmark':
             methods = ['vanilla_learnable', 'vanilla_fixed']
         metrics = {}
@@ -215,7 +217,7 @@ if __name__ == "__main__":
 
 
         for m in methods:
-
+            
             y_true = np.load(f'../preds/true_{dataset}_{m}.npy')
             y_pred = np.load(f'../preds/pred_{dataset}_{m}.npy')
             y_pred = np.mean(y_pred, axis=1)
@@ -234,7 +236,7 @@ if __name__ == "__main__":
         y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
         mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
 
-        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        # metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
         # computed in other folder
 
@@ -242,7 +244,7 @@ if __name__ == "__main__":
         mse = rmse ** 2
         mae = 0.08680029203277909
         mape = 56.32928901284428
-        metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        # metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
 
         df = pd.DataFrame(metrics)
@@ -251,8 +253,12 @@ if __name__ == "__main__":
                            'vanilla_learnable': '4_k',
                            'vanilla_learnable_conv_8_neighbor': '8_k',
                            'vanilla_learnable_conv_16_neighbor': '16_k',
+                            'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
+                            'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
+                            'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
                            'vanilla_fixed_gru': 'gru',
                            }, inplace=True)
+        
         return df
         
 
@@ -260,6 +266,7 @@ if __name__ == "__main__":
     for d in datasets:
         df = run_eval(d)
         df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
+
 
         print("="*30 + d + "="*30)
         print(df)

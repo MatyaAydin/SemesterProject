@@ -163,7 +163,12 @@ class ResidualBlock(nn.Module):
             h = h.transpose(1, 3) # (B, T, V, c_out) -> (B, c_out, T, V)
         else:
             h = h.transpose(2,3) #(B, c_out, V, T)
-            h = self.spatial(h, A_hat)
+            h_batch = []
+            for i in range(A_hat.shape[0]):
+                h_res = self.spatial(h[i].unsqueeze(0), A_hat[i])
+                h_batch.append(h_res.squeeze(0))
+            h = torch.stack(h_batch)
+
             h = h.transpose(2,3) #(B, c_out, T, V)
         return h + self.shortcut(x)
 
@@ -320,11 +325,19 @@ class UGnet(nn.Module):
         h = [x]
 
         if self.graph_method == 'learnable':
-            A = self.graph_learning_module(x, None)
-            a1 = asym_adj_torch(A)
-            a2 = asym_adj_torch(torch.transpose(A, 0, 1))
+            A = self.graph_learning_module(x, None) # (B, V, V)
 
-            supports = torch.stack([a1, a2])
+            supports = []
+            for i in range(A.shape[0]):
+                A_batch = A[i]
+                a1 = asym_adj_torch(A_batch)
+                a2 = asym_adj_torch(torch.transpose(A_batch, 0, 1))
+
+                support_batch = torch.stack([a1, a2])
+                supports.append(support_batch)
+
+            supports = torch.stack(supports)
+
         elif self.graph_method == 'learnable_static':
             num_nodes = x.shape[2]
             emb = self.node_emb().view(1, 1, num_nodes, -1)
@@ -332,8 +345,7 @@ class UGnet(nn.Module):
             a1 = asym_adj_torch(A)
             a2 = asym_adj_torch(torch.transpose(A, 0, 1))
 
-            supports = torch.stack([a1, a2])
-            
+            supports = torch.stack([a1, a2])   
         else:
             supports = torch.stack([self.a1, self.a2])
 
