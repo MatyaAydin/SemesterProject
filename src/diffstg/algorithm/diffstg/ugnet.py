@@ -330,6 +330,7 @@ class UGnet(nn.Module):
             supports = []
             for i in range(A.shape[0]):
                 A_batch = A[i]
+
                 a1 = asym_adj_torch(A_batch)
                 a2 = asym_adj_torch(torch.transpose(A_batch, 0, 1))
 
