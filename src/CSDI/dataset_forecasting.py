@@ -34,8 +34,6 @@ class Forecasting_Dataset(Dataset):
 
             self.main_data = data.reshape(T, N)
             self.mask_data = np.ones_like(self.main_data)
-            self.mean_data = np.mean(self.main_data, axis=0)
-            self.std_data = np.std(self.main_data, axis=0)
 
 
         if datatype == "PEMS08":
@@ -50,8 +48,6 @@ class Forecasting_Dataset(Dataset):
 
             self.main_data = data.reshape(T, N)
             self.mask_data = np.ones_like(self.main_data)
-            self.mean_data = np.mean(self.main_data, axis=0)
-            self.std_data = np.std(self.main_data, axis=0)
         
         if datatype == "electricity_benchmark":
             data = np.load("./data/electricity_benchmark/flow.npy")
@@ -65,11 +61,11 @@ class Forecasting_Dataset(Dataset):
 
             self.main_data = data.reshape(T, N)
             self.mask_data = np.ones_like(self.main_data)
-            self.mean_data = np.mean(self.main_data, axis=0)
-            self.std_data = np.std(self.main_data, axis=0)
             
         self.seq_length = self.history_length + self.pred_length
-            
+        train_length = len(self.main_data) - self.seq_length - self.valid_length - self.test_length
+        self.mean_data = np.mean(self.main_data[:train_length], axis=0)
+        self.std_data = np.std(self.main_data[:train_length], axis=0) + 1e-9
         self.main_data = (self.main_data - self.mean_data) / self.std_data
 
 

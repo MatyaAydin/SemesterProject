@@ -208,10 +208,11 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         methods = [
-            # 'diffconv_fixed', 'vanilla_fixed_gru', 'vanilla_fixed',
+            # 'diffconv_fixed', 'vanilla_fixed_gru',
+                    'vanilla_fixed',
                    'vanilla_learnable', 'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
                    'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
-                   'vanilla_learnable_batch_conv_4_neighbor', 'vanilla_learnable_batch_conv_8_neighbor', 'vanilla_learnable_batch_conv_16_neighbor']
+                   'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor']
         if dataset == 'electricity_benchmark':
             methods = ['vanilla_learnable', 'vanilla_fixed']
         metrics = {}
@@ -238,21 +239,30 @@ if __name__ == "__main__":
         y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
         mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
 
-        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        # metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
         # computed in other folder
 
-        rmse = 0.5576574046571184
+        # rmse = 0.5725598493277706
+        # mse = rmse ** 2
+        # mae = 0.08914002551678403
+        # mape = 85.66012757579198
+
+        # without inverse transform
+        rmse = 1.1832468519089534
         mse = rmse ** 2
-        mae = 0.08680029203277909
-        mape = 56.32928901284428
+        mae = 0.17032654941611178
+        mape = 135.4436335691586
+
+
         metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
 
         df = pd.DataFrame(metrics)
 
         df.rename(columns={
-            # 'vanilla_fixed':'baseline', 'diffconv_fixed':'diffconv',
+                            'vanilla_fixed':'baseline',
+                            # , 'diffconv_fixed':'diffconv',
                            'vanilla_learnable': '4_k',
                            'vanilla_learnable_conv_8_neighbor': '8_k',
                            'vanilla_learnable_conv_16_neighbor': '16_k',
@@ -260,9 +270,9 @@ if __name__ == "__main__":
                             'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
                             'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
 
-                            'vanilla_learnable_batch_conv_4_neighbor': 'batch_4_k',
-                            'vanilla_learnable_batch_conv_8_neighbor': 'batch_8_k',
-                            'vanilla_learnable_batch_conv_16_neighbor': 'batch_16_k',
+                            'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
+                            'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
+                            'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
                         #    'vanilla_fixed_gru': 'gru',
                            }, inplace=True)
         

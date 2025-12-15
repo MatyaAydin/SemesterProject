@@ -56,6 +56,7 @@ train_loader, valid_loader, test_loader, scaler, mean_scaler = get_dataloader(
 )
 
 model = CSDI_Forecasting(config, args.device, target_dim).to(args.device)
+print("number of trainable parameters", sum(p.numel() for p in model.parameters() if p.requires_grad))
 if args.modelfolder == "":
     print("training")
     train(
@@ -73,7 +74,7 @@ evaluate(
     model,
     test_loader,
     nsample=args.nsample,
-    scaler=scaler,
-    mean_scaler=mean_scaler,
+    scaler=1.,#scaler, # I do not inverse transform in diffstg
+    mean_scaler=0.,#mean_scaler,
     foldername=foldername,
 )

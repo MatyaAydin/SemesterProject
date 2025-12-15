@@ -45,10 +45,14 @@ Next steps:
 * try pems08 with vanilla baseline and CSDI to check --> dimension prb
 * retrain on electricity benchmark once I'm sure about what I'm doing
 * relevant to try others graph convolution/temporal blocks?
-* try other graph learning methods: dynamic of fixed, when in training etc
+
 * retrain with larger horizon
 * anomaly detection: case study at the end, first show that forecasting works
 
-* CSDI: scalar only but pems08 has 3 features per nodes
-* feedback about code ?
-* deadline ?
+
+* Push deadline to 9th of january ?
+* when do you go on vacation ?
+* opinion on adding self loop
+* not enough data: How to prune in knn learn graph ? or do I redo preprocessing myself ?
+* do I mention scalar STG I did at the beginning of the semester in the report ?
+* Data leakage in CSDI: now it is fixed, but was gap all in the scaling difference ?
