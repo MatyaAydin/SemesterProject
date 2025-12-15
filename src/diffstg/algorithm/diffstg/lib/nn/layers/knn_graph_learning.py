@@ -81,15 +81,10 @@ class DifferentiableKnnGraphLayer(nn.Module):
 
     def forward(self, x, emb: Tensor):
 
-        # The following causes a bug with batch size > 1
-        # if self.training and not self.inference_mode:
-        #     n_samples = x.size(0) # take a sample for each batch
-        # else:
-        #     n_samples = 1
 
-        n_samples = x.size(0) # inference time will be more expensive
+        # n_samples = x.size(0)
 
-        # n_samples = 1 # TODO temporary fix, might not be optimal
+        n_samples = 1 
         adj = self.sample_adj(n_samples=n_samples)
         # DiffSTG expects an adjacency matrix
         if self.mode == 'diffSTG':

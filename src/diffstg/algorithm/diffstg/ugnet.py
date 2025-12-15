@@ -322,6 +322,9 @@ class UGnet(nn.Module):
         if self.graph_method == 'learnable':
             A = self.graph_learning_module(x, None) # (B, V, V)
 
+            for i in range(A.shape[0]):
+                A[i,i] = 1.0  # add self-loop
+
             a1 = asym_adj_torch(A)
             a2 = asym_adj_torch(torch.transpose(A, 0, 1))
             supports = torch.stack([a1, a2])
