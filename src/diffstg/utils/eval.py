@@ -211,6 +211,9 @@ if __name__ == "__main__":
             'diffconv_fixed', 'vanilla_fixed_gru',
                     'vanilla_fixed',
                    'vanilla_learnable',
+                   'vanilla_fixed_lstm_4_neighbor',
+                   'vanilla_fixed_transformer_4_neighbor',
+                   'gatconv_fixed_conv_4_neighbor'
                 #    'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
                 #    'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
                 #    'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor'
@@ -266,6 +269,9 @@ if __name__ == "__main__":
                             'vanilla_fixed':'baseline',
                             'diffconv_fixed':'diffconv',
                             'vanilla_fixed_gru': 'gru',
+                            'vanilla_fixed_lstm_4_neighbor': 'lstm',
+                            'vanilla_fixed_transformer_4_neighbor': 'transformer',
+                            'gatconv_fixed_conv_4_neighbor': 'gatconv',
 
                            'vanilla_learnable': '4_k',
                         #    'vanilla_learnable_conv_8_neighbor': '8_k',

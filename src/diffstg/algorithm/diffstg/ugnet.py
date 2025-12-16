@@ -10,7 +10,8 @@ from .lib.nn.layers.knn_graph_learning import DifferentiableKnnGraphLayer
 from .lib.nn.utils import adj_to_fc_edge_index
 from tsl.nn.layers import DiffConv, NodeEmbedding
 from tsl.ops.connectivity import adj_to_edge_index
-from tsl.nn.blocks import RNN
+from tsl.nn.blocks import RNN, Transformer
+from torch_geometric.nn.conv import GraphConv
 
 """
 Implementation of UGnet
@@ -91,7 +92,7 @@ class TcnBlock(nn.Module):
             self.net = nn.Sequential(self.conv, self.chomp, self.drop)
 
 
-        else:
+        elif self.operation_type in ['lstm', 'gru']:
             # RNN implementation
             self.net = RNN(
                 input_size=c_in,
@@ -99,6 +100,11 @@ class TcnBlock(nn.Module):
                 return_only_last_state=False,
                 n_layers=2,
                 cell=self.operation_type)
+        else:
+            self.net = Transformer(
+                input_size=c_in,
+                hidden_size=c_out,
+            )
             
             self.drop = nn.Dropout(dropout)
         self.shortcut = nn.Conv2d(c_in, c_out, kernel_size=(1, 1)) if c_in != c_out else None
@@ -141,6 +147,8 @@ class ResidualBlock(nn.Module):
         # diffusion convolution implementation
         if config.gc_type == 'diffconv':
             self.spatial = DiffConv(in_channels=c_out, out_channels=c_out, k=config.supports_len, activation='relu')
+        elif config.gc_type == 'gatconv':
+            self.spatial = GraphConv(in_channels=c_out, out_channels=c_out)
 
         else: # vanilla gcn
             self.spatial = SpatialBlock(config.supports_len, c_out, c_out)
@@ -156,7 +164,7 @@ class ResidualBlock(nn.Module):
         h = self.norm(h.transpose(1,3)).transpose(1,3) # (B, c_out, V, T)
 
         # diffusion convolution forward pass
-        if self.gc_type == 'diffconv':
+        if self.gc_type == 'diffconv' or self.gc_type == 'gatconv':
             h = h.transpose(1, 3)  # (B, c_out, V, T) -> (B, T, V, c_out)
             edge_index, edge_weight = adj_to_fc_edge_index(A_hat[0]) if self.training else adj_to_edge_index(A_hat[0]) # recover from torch.stack in supports
             h = self.spatial(x=h, edge_index=edge_index, edge_weight=edge_weight)
