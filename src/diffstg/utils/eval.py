@@ -208,11 +208,13 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         methods = [
-            # 'diffconv_fixed', 'vanilla_fixed_gru',
+            'diffconv_fixed', 'vanilla_fixed_gru',
                     'vanilla_fixed',
-                   'vanilla_learnable', 'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
-                   'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
-                   'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor']
+                   'vanilla_learnable',
+                #    'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
+                #    'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
+                #    'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor'
+                ]
         if dataset == 'electricity_benchmark':
             methods = ['vanilla_learnable', 'vanilla_fixed']
         metrics = {}
@@ -235,11 +237,11 @@ if __name__ == "__main__":
             metrics[m] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
 
-        y_true_chronos = np.load(f'../preds/{d}_true_chronos.npy')
-        y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
+        y_true_chronos = np.load(f'../preds/{d}_normalized_true_chronos.npy')
+        y_pred_chronos = np.load(f'../preds/{d}_normalized_pred_chronos.npy')
         mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
 
-        # metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
 
         # computed in other folder
 
@@ -262,18 +264,19 @@ if __name__ == "__main__":
 
         df.rename(columns={
                             'vanilla_fixed':'baseline',
-                            # , 'diffconv_fixed':'diffconv',
-                           'vanilla_learnable': '4_k',
-                           'vanilla_learnable_conv_8_neighbor': '8_k',
-                           'vanilla_learnable_conv_16_neighbor': '16_k',
-                            'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
-                            'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
-                            'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
+                            'diffconv_fixed':'diffconv',
+                            'vanilla_fixed_gru': 'gru',
 
-                            'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
-                            'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
-                            'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
-                        #    'vanilla_fixed_gru': 'gru',
+                           'vanilla_learnable': '4_k',
+                        #    'vanilla_learnable_conv_8_neighbor': '8_k',
+                        #    'vanilla_learnable_conv_16_neighbor': '16_k',
+                        #     'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
+                        #     'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
+                        #     'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
+
+                        #     'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
+                        #     'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
+                        #     'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
                            }, inplace=True)
         
         return df
