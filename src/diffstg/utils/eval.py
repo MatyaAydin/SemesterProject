@@ -213,7 +213,8 @@ if __name__ == "__main__":
                    'vanilla_learnable',
                    'vanilla_fixed_lstm_4_neighbor',
                    'vanilla_fixed_transformer_4_neighbor',
-                   'gatconv_fixed_conv_4_neighbor'
+                   'gatconv_fixed_conv_4_neighbor',
+                   'vanilla_dagg_conv_4_neighbor',
                 #    'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
                 #    'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
                 #    'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor'
@@ -237,14 +238,14 @@ if __name__ == "__main__":
 
             mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
 
-            metrics[m] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+            metrics[m] = {'mae': mae, 'rmse': rmse, 'mse': mse}
 
 
         y_true_chronos = np.load(f'../preds/{d}_normalized_true_chronos.npy')
         y_pred_chronos = np.load(f'../preds/{d}_normalized_pred_chronos.npy')
         mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
 
-        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
 
         # computed in other folder
 
@@ -260,7 +261,7 @@ if __name__ == "__main__":
         mape = 135.4436335691586
 
 
-        metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mape': mape, 'mse': mse}
+        metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
 
 
         df = pd.DataFrame(metrics)
@@ -272,6 +273,7 @@ if __name__ == "__main__":
                             'vanilla_fixed_lstm_4_neighbor': 'lstm',
                             'vanilla_fixed_transformer_4_neighbor': 'transformer',
                             'gatconv_fixed_conv_4_neighbor': 'gatconv',
+                            'vanilla_dagg_conv_4_neighbor': 'dagg',
 
                            'vanilla_learnable': '4_k',
                         #    'vanilla_learnable_conv_8_neighbor': '8_k',

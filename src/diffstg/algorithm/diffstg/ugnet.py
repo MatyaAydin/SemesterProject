@@ -2,6 +2,7 @@
 
 import torch.nn as nn
 import torch
+import torch.nn.functional as F
 import math
 import torch.nn.init as init
 
@@ -247,7 +248,12 @@ class UGnet(nn.Module):
 
         self.n_blocks = config.get('n_blocks', 2)
         # for static graph learning
-        self.node_emb = NodeEmbedding(config.V, self.d_h) if self.graph_method == 'learnable_static' else None
+        if self.graph_method == 'learnable_static':
+            self.node_embed = NodeEmbedding(config.V, self.d_h)
+        elif self.graph_method == 'dagg':
+            self.node_embed = nn.Parameter(torch.randn(config.V, config.d_h), requires_grad=True)
+        else:
+            self.node_embed = None
 
         # number of resolutions
         n_resolutions = len(config.channel_multipliers)
@@ -340,12 +346,19 @@ class UGnet(nn.Module):
 
         elif self.graph_method == 'learnable_static':
             num_nodes = x.shape[2]
-            emb = self.node_emb().view(1, 1, num_nodes, -1)
+            emb = self.node_embed().view(1, 1, num_nodes, -1)
             A = self.graph_learning_module(emb, None)
             a1 = asym_adj_torch(A)
             a2 = asym_adj_torch(torch.transpose(A, 0, 1))
 
-            supports = torch.stack([a1, a2])   
+            supports = torch.stack([a1, a2])
+
+        elif self.graph_method == 'dagg':
+            A = torch.mm(self.node_embed, self.node_embed.transpose(0, 1))
+            a1 = F.softmax(F.relu(A), dim=1) 
+            a2 = F.softmax(F.relu(torch.transpose(A, 0, 1)), dim=1)
+            supports = torch.stack([a1, a2])
+
         else:
             supports = torch.stack([self.a1, self.a2])
 

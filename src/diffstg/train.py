@@ -52,9 +52,9 @@ def get_params():
     parser.add_argument("--T_h", type=int, default=12)
     parser.add_argument("--T_p", type=int, default=12)
     parser.add_argument("--epoch", type=int, default=300)
-    parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
-    parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv or vanilla
-    parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm or gru
+    parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, kearnable_static, dagg
+    parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv, gatconv or vanilla
+    parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm, gru or transformer
     parser.add_argument("--k", type=int, default=4)  
 
     # eval

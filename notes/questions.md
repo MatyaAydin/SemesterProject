@@ -49,23 +49,11 @@ Next steps:
 * retrain with larger horizon
 * anomaly detection: case study at the end, first show that forecasting works
 
-
-organisation:
-* Push deadline to 9th of january ?
-* when do you go on vacation ?
-
-new things I tried/want to try:
-* opinion on adding self loop
-* opinion on adding lstm, transformer in temporal block even if bad
-* want to try one more spatial block, which one do you think is best ? --> gatconv from pygeo
-
-Problems:
-* static graph learning: you use node embedding, I don't, does it matter ?
-* not enough data: How to prune in knn learn graph ? or do I redo preprocessing myself ?
-* do I mention scalar STG I did at the beginning of the semester in the report ?
-* scaling in chronos and CSDI: solved
-
 Next:
-* useful to add CRPS as metric ?
-* Look for hyperparameters ? show tables in report
-* Now I can rerun on bigger electricity benchamrk: how selective should I be on 
+* useful to add CRPS as metric ? yes to eval interval instead of scalar
+* Now I can rerun on bigger electricity benchamrk: how selective should I be on  --> very, subsample until 100
+
+
+try other graph learning
+add node embedding after layer
+n_samples = 16 when sure
