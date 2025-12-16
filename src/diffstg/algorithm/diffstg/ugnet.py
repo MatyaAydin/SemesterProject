@@ -98,7 +98,7 @@ class TcnBlock(nn.Module):
                 hidden_size=c_out,
                 return_only_last_state=False,
                 n_layers=2,
-                cell='gru')
+                cell=self.operation_type)
             
             self.drop = nn.Dropout(dropout)
         self.shortcut = nn.Conv2d(c_in, c_out, kernel_size=(1, 1)) if c_in != c_out else None

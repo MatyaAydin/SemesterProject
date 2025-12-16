@@ -54,7 +54,7 @@ def get_params():
     parser.add_argument("--epoch", type=int, default=300)
     parser.add_argument("--graph_method", type=str, default='fixed') # fixed or learnable
     parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv or vanilla
-    parser.add_argument("--temporal_type", type=str, default='conv') # conv or gru
+    parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm or gru
     parser.add_argument("--k", type=int, default=4)  
 
     # eval
@@ -478,52 +478,6 @@ def main(params: dict):
             break  # Early_stop
 
 
-    try:
-        model = torch.load(model_path, map_location=config.device)
-        print('best model loaded from: <<', model_path)
-    except Exception as err:
-        print(err)
-        print('load best model failed')
-
-    # conduct multiple-samples, then report the best
-    metric_lst = []
-    for sample_strategy, sample_steps in [('ddim_multi', 40)]:
-        if sample_steps > config.model.N: break
-
-        config.model.sample_strategy = sample_strategy
-        config.model.sample_steps = sample_steps
-
-        model.set_ddim_sample_steps(sample_steps)
-        model.set_sample_strategy(sample_strategy)
-
-        metrics_test = Metric(T_p=config.model.T_h + config.model.T_p)
-        evals(model, test_loader, epoch, metrics_test, config, clean_data, mode='test')
-        message = f'sample_strategy:{sample_strategy}, sample_steps:{sample_steps} Final results in test:{metrics_test}\n'
-        config.logger.write(message, is_terminal=True)
-
-        params = unfold_dict(config)
-        params = dict_merge([params, metrics_test.to_dict()])
-        params['best_epoch'] = metrics_val.best_metrics['epoch']
-        params['model'] = config.model.epsilon_theta
-        save2file(params)
-        metric_lst.append(metrics_test.metrics['mae'])
-
-    # rename log file
-    log_file, log_name = os.path.split(config.log_path)
-    new_log_path = os.path.join(log_file, f"[{config.data.name}]mae{min(metric_lst):7.2f}+{log_name}")
-    import shutil
-    # os.rename(config.log_path, new_log_path)
-    shutil.copy(config.log_path, new_log_path)
-    config.log_path = new_log_path
-
-
-    try:
-        writer.close()
-    except:
-        print("error with writer close")
-        pass
-
-    # nni.report_final_result(min(metric_lst))
 
 
 # data.name	model	model.N	model.epsilon_theta	model.d_h	model.T_h	model.T_p	model.sample_strategy
