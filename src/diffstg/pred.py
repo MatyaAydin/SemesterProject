@@ -1,29 +1,45 @@
-
-import os
+# %%
+import os, sys
 import torch
+import argparse
 import numpy as np
 import torch.utils.data
 from easydict import EasyDict as edict
+from timeit import default_timer as timer
+from tqdm import tqdm
 
 from utils.eval import Metric
-from utils.common_utils import to_device
+from utils.gpu_dispatch import GPU
+from utils.common_utils import dir_check, to_device, ws, unfold_dict, dict_merge, GpuId2CudaId, Logger
 
 from algorithm.dataset import CleanDataset, TrafficDataset
+from algorithm.diffstg.model import DiffSTG, save2file
 import pickle
 
+parser = argparse.ArgumentParser(description='Entry point of the code')
+parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, kearnable_static, dagg
+parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv, gatconv or vanilla
+parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm, gru or transformer
+parser.add_argument("--k", type=int, default=4)
+parser.add_argument("--data", type=str, default='PEMS08')
 
-GC_TYPE = 'vanilla'
-GRAPH_METHOD = 'learnable'
-DATASET_NAME = 'ewz_daily'
-TEMPORAL_TYPE = 'conv'
-K_NEIGHBORS = '_8_neighbor'
+args, _ = parser.parse_known_args()
+args_dict = vars(args)
+
+GC_TYPE = args_dict['gc_type']
+GRAPH_METHOD = args_dict['graph_method']
+DATASET_NAME = args_dict['data']
+TEMPORAL_TYPE = args_dict['temporal_type']
+K_NEIGHBORS = f'_{args_dict["k"]}_neighbor'
 
 
+# %%
 trained_model_path = f'./output/model/{DATASET_NAME}_{GRAPH_METHOD}_{GC_TYPE}_{TEMPORAL_TYPE}{K_NEIGHBORS}.dm4stg'
 DATA_path = f'./data/dataset/{DATASET_NAME}/'
 flow_path = os.path.join(DATA_path, 'flow.npy')
 adj_path = os.path.join(DATA_path, 'adj.npy')
 
+# %%
 flow = np.load(flow_path)
 adj = np.load(adj_path)
 T = flow.shape[0]
@@ -38,13 +54,11 @@ with open(f'./configs/config_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_T
 
 clean_data = CleanDataset(config)
 
+# %%
 test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
-test_loader = torch.utils.data.DataLoader(test_dataset, 8, shuffle=False)
+test_loader = torch.utils.data.DataLoader(test_dataset, 32, shuffle=False)
 
-val_dataset = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.test_start_idx - config.model.T_p + 1), config)
-val_loader = torch.utils.data.DataLoader(val_dataset, 8, shuffle=False)
-
-
+# %%
 def predict(model, data_loader, config, clean_data, mode='Test'):
 
     y_pred, y_true = [], []
@@ -100,9 +114,11 @@ def predict(model, data_loader, config, clean_data, mode='Test'):
     torch.cuda.empty_cache()
     return y_true, y_pred
 
+# %%
 y_true, y_pred = predict(model, test_loader, config, clean_data, mode='Val')
 print('computed predictions')
-np.save(f'./pred_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_pred)
-np.save(f'./true_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_true)
+np.save(f'./preds/pred_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_pred)
+np.save(f'./preds/true_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_true)
+
 
 

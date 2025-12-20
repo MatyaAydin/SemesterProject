@@ -52,7 +52,7 @@ def get_params():
     parser.add_argument("--T_h", type=int, default=12)
     parser.add_argument("--T_p", type=int, default=12)
     parser.add_argument("--epoch", type=int, default=300)
-    parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, kearnable_static, dagg
+    parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, learnable_static, dagg
     parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv, gatconv or vanilla
     parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm, gru or transformer
     parser.add_argument("--k", type=int, default=4)  
@@ -136,7 +136,7 @@ def default_config(data='AIR_BJ'):
     if config.data.name == 'electricity_benchmark':
         print('load electricty benchmark settings')
         config.data.num_features = 1
-        config.data.num_vertices = 316
+        config.data.num_vertices = 261
         config.data.points_per_hour = 1
         config.data.val_start_idx = int(25065 * 0.7)
         config.data.test_start_idx = int(25065 * 0.85)
@@ -370,10 +370,7 @@ def main(params: dict):
     val_dataset = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.test_start_idx - config.model.T_p + 1), config)
     # val_dataset   = TrafficDataset(clean_data, (config.data.val_start_idx + config.model.T_p, config.data.val_start_idx + config.model.T_p + 512), config)
 
-    val_loader = torch.utils.data.DataLoader(val_dataset, 64, shuffle=False)
-
-    test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
-    test_loader = torch.utils.data.DataLoader(test_dataset, 64, shuffle=False)
+    val_loader = torch.utils.data.DataLoader(val_dataset, config.batch_size, shuffle=False)
 
 
     # Create optimizer
@@ -383,7 +380,8 @@ def main(params: dict):
     # metrics in val, and test dataset, note that we cannot evaluate the performance in the train dataset
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
-    model_path = config.PATH_MOD + config.trial_name + model.model_file_name()
+
+    model_path = config.PATH_MOD + f'{config.data.name}_{config.model.graph_method}_{config.model.gc_type}_{config.model.temporal_type}{config.model.k}_neighbor.dm4stg'
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)

@@ -12,4 +12,27 @@
 
 source /home/maydin/SemesterProject/venv/bin/activate
 
-python3 ./train.py  --T_p 1 --T_h 7 --data "ewz_daily" --epoch 100 --is_test False --graph_method 'learnable' --gc_type 'vanilla' --temporal_type "conv" --k 16
+DATA='electricity_benchmark'
+GRAPH_METHOD='fixed'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='lstm'
+K=0
+
+python3 ./train.py \
+  --T_p 1 \
+  --T_h 24 \
+  --data "$DATA" \
+  --epoch 100 \
+  --is_test False \
+  --graph_method "$GRAPH_METHOD" \
+  --gc_type "$GC_TYPE" \
+  --temporal_type "$TEMPORAL_TYPE" \
+  --k "$K"
+
+
+python3 ./pred.py \
+  --data "$DATA" \
+  --graph_method "$GRAPH_METHOD" \
+  --gc_type "$GC_TYPE" \
+  --temporal_type "$TEMPORAL_TYPE" \
+  --k "$K"

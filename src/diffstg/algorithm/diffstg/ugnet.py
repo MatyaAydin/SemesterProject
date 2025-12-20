@@ -107,7 +107,7 @@ class TcnBlock(nn.Module):
                 hidden_size=c_out,
             )
             
-            self.drop = nn.Dropout(dropout)
+        self.drop = nn.Dropout(dropout)
         self.shortcut = nn.Conv2d(c_in, c_out, kernel_size=(1, 1)) if c_in != c_out else None
 
     def forward(self, x):
@@ -298,14 +298,17 @@ class UGnet(nn.Module):
                                  nn.Linear(2 * T, T),)
         
         # graph learning initialization
-        self.graph_learning_module = DifferentiableKnnGraphLayer(
-            n_nodes=config.V,
-            k=config.k,
-            tau=1,
-            sparsify_gradient=False,
-            at_most_k=False,
-            mode = "diffSTG"
-        )
+        if config.graph_method == 'learnable':
+            self.graph_learning_module = DifferentiableKnnGraphLayer(
+                n_nodes=config.V,
+                k=config.k,
+                tau=1,
+                sparsify_gradient=False,
+                at_most_k=False,
+                mode = "diffSTG"
+            )
+        else:
+            self.graph_learning_module = None
         a1 = asym_adj(config.A)
         a2 = asym_adj(np.transpose(config.A))
         self.a1 = torch.from_numpy(a1).to(config.device)
@@ -335,9 +338,6 @@ class UGnet(nn.Module):
 
         if self.graph_method == 'learnable':
             A = self.graph_learning_module(x, None) # (B, V, V)
-
-            for i in range(A.shape[0]):
-                A[i,i] = 1.0  # add self-loop
 
             a1 = asym_adj_torch(A)
             a2 = asym_adj_torch(torch.transpose(A, 0, 1))
