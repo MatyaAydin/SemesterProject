@@ -381,7 +381,7 @@ def main(params: dict):
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
 
-    model_path = config.PATH_MOD + f'{config.data.name}_{config.model.graph_method}_{config.model.gc_type}_{config.model.temporal_type}{config.model.k}_neighbor.dm4stg'
+    model_path = config.PATH_MOD + f'{config.data.name}_{config.model.graph_method}_{config.model.gc_type}_{config.model.temporal_type}_{config.model.k}_neighbor.dm4stg'
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)

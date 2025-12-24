@@ -30,7 +30,7 @@ if args.datatype == 'ewz_daily':
     target_dim = 59
 
 elif args.datatype == 'electricity_benchmark':
-    target_dim = 316
+    target_dim = 261
 
 elif args.datatype == 'PEMS08':
     target_dim = 170

@@ -220,7 +220,17 @@ if __name__ == "__main__":
                 #    'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor'
                 ]
         if dataset == 'electricity_benchmark':
-            methods = ['vanilla_learnable', 'vanilla_fixed']
+            methods = [
+                # 'vanilla_dagg_conv_0_neighbor',
+                # 'vanilla_fixed_conv_0_neighbor',
+                # 'vanilla_fixed_lstm_0_neighbor',
+                # 'vanilla_learnable_conv_32_neighbor',
+                # 'vanilla_learnable_conv_43_neighbor',
+                # 'vanilla_learnable_conv_54_neighbor',
+
+                "vanilla_fixed"
+
+            ]
         metrics = {}
 
 
@@ -240,25 +250,29 @@ if __name__ == "__main__":
 
             metrics[m] = {'mae': mae, 'rmse': rmse, 'mse': mse}
 
-
-        y_true_chronos = np.load(f'../preds/{d}_normalized_true_chronos.npy')
-        y_pred_chronos = np.load(f'../preds/{d}_normalized_pred_chronos.npy')
+        if dataset == 'ewz_daily':
+            y_true_chronos = np.load(f'../preds/{d}_normalized_true_chronos.npy')
+            y_pred_chronos = np.load(f'../preds/{d}_normalized_pred_chronos.npy')
+        else:
+            y_true_chronos = np.load(f'../preds/{d}_true_chronos.npy')
+            y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
         mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
 
         metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
 
         # computed in other folder
 
-        # rmse = 0.5725598493277706
-        # mse = rmse ** 2
-        # mae = 0.08914002551678403
-        # mape = 85.66012757579198
-
         # without inverse transform
-        rmse = 1.1832468519089534
-        mse = rmse ** 2
-        mae = 0.17032654941611178
-        mape = 135.4436335691586
+
+        if dataset == 'ewz_daily':
+            rmse = 1.1832468519089534
+            mse = rmse ** 2
+            mae = 0.17032654941611178
+            mape = 135.4436335691586
+        else:
+            rmse = 0.23969148635372156
+            mae = 0.15429486885056842
+            mse = rmse ** 2
 
 
         metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
@@ -266,31 +280,44 @@ if __name__ == "__main__":
 
         df = pd.DataFrame(metrics)
 
-        df.rename(columns={
-                            'vanilla_fixed':'baseline',
-                            'diffconv_fixed':'diffconv',
-                            'vanilla_fixed_gru': 'gru',
-                            'vanilla_fixed_lstm_4_neighbor': 'lstm',
-                            'vanilla_fixed_transformer_4_neighbor': 'transformer',
-                            'gatconv_fixed_conv_4_neighbor': 'gatconv',
-                            'vanilla_dagg_conv_4_neighbor': 'dagg',
+        if dataset == 'ewz_daily':
+            df.rename(columns={
+                                'vanilla_fixed':'baseline',
+                                'diffconv_fixed':'diffconv',
+                                'vanilla_fixed_gru': 'gru',
+                                'vanilla_fixed_lstm_4_neighbor': 'lstm',
+                                'vanilla_fixed_transformer_4_neighbor': 'transformer',
+                                'gatconv_fixed_conv_4_neighbor': 'gatconv',
+                                'vanilla_dagg_conv_4_neighbor': 'dagg',
 
-                           'vanilla_learnable': '4_k',
-                        #    'vanilla_learnable_conv_8_neighbor': '8_k',
-                        #    'vanilla_learnable_conv_16_neighbor': '16_k',
-                        #     'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
-                        #     'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
-                        #     'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
+                            'vanilla_learnable': '4_k',
+                            #    'vanilla_learnable_conv_8_neighbor': '8_k',
+                            #    'vanilla_learnable_conv_16_neighbor': '16_k',
+                            #     'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
+                            #     'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
+                            #     'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
 
-                        #     'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
-                        #     'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
-                        #     'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
-                           }, inplace=True)
+                            #     'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
+                            #     'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
+                            #     'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
+                            }, inplace=True)
+            
+        else:
+            df.rename(
+                columns={
+                'vanilla_dagg_conv_0_neighbor': 'dagg',
+                'vanilla_fixed_conv_0_neighbor': 'baseline',
+                'vanilla_fixed_lstm_0_neighbor': 'lstm',
+                'vanilla_learnable_conv_32_neighbor': '32_k',
+                'vanilla_learnable_conv_43_neighbor': '43_k',
+                'vanilla_learnable_conv_54_neighbor': '54_k',
+                }, inplace=True
+            )
         
         return df
         
 
-    datasets = ['ewz_daily']
+    datasets = ['electricity_benchmark']
     for d in datasets:
         df = run_eval(d)
         df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)

@@ -82,9 +82,9 @@ class DifferentiableKnnGraphLayer(nn.Module):
     def forward(self, x, emb: Tensor):
 
 
-        # n_samples = x.size(0)
+        # n_samples = x.size(0) # inference time will be more expensive
 
-        n_samples = 1 
+        n_samples = 1
         adj = self.sample_adj(n_samples=n_samples)
         # DiffSTG expects an adjacency matrix
         if self.mode == 'diffSTG':

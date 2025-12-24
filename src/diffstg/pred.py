@@ -56,7 +56,7 @@ clean_data = CleanDataset(config)
 
 # %%
 test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
-test_loader = torch.utils.data.DataLoader(test_dataset, 32, shuffle=False)
+test_loader = torch.utils.data.DataLoader(test_dataset, 8, shuffle=False)
 
 # %%
 def predict(model, data_loader, config, clean_data, mode='Test'):
