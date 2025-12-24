@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from timeit import default_timer as timer
+import pandas as pd
 
 
 def mask_np(array, null_val):
@@ -201,6 +202,67 @@ def calc_mis(target, forecast, alpha = 0.05):
         upper_quantile = torch.quantile(forecast, 1.0 - alpha / 2, dim=1).cpu().numpy(),
         alpha = alpha,
     )
+
+if __name__ == "__main__":
+
+    def run_eval(dataset):
+
+        mapping = {
+            "chronos": "chronos",
+            "diffconv_fixed_conv_0_neighbor":"diffconv",
+            "gatconv_fixed_conv_0_neighbor":"gatconv",
+            "vanilla_dagg_conv_0_neighbor":"dagg",
+            "vanilla_fixed_conv_0_neighbor":"baseline",
+            "vanilla_fixed_gru_0_neighbor":"gru",
+            "vanilla_fixed_lstm_0_neighbor":"lstm",
+            "vanilla_fixed_transformer_0_neighbor":"transformer",
+            "vanilla_learnable_conv_12_neighbor":"0.75",
+            "vanilla_learnable_conv_15_neighbor":"0.8",
+            "vanilla_learnable_conv_9_neighbor":"0.85",
+
+        }
+
+        methods = mapping.keys()
+        metrics = {}
+
+
+        for m in methods:
+
+            if m == "chronos":
+                y_true = np.load(f'./preds/{dataset}_true_{m}.npy')
+                y_pred = np.load(f'./preds/{dataset}_pred_{m}.npy')
+            
+            else:
+
+                y_true = np.load(f'./preds/true_{dataset}_{m}.npy')
+                y_pred = np.load(f'./preds/pred_{dataset}_{m}.npy')
+                y_pred = np.mean(y_pred, axis=1)
+
+
+            metric = Metric(T_p=1)
+
+            mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
+
+            metrics[m] = {'mae': mae, 'rmse': rmse, 'mse': mse}
+
+
+
+
+        df = pd.DataFrame(metrics)
+
+        if dataset == 'ewz_daily':
+            df.rename(columns=mapping, inplace=True)
+        
+        
+        return df
+
+    d = 'ewz_daily'
+
+    df = run_eval(d)
+    df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
+    df.to_csv(f'./{d}_results.csv')
+
+    print(df)
 
 
 
