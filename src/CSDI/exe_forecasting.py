@@ -74,7 +74,7 @@ evaluate(
     model,
     test_loader,
     nsample=args.nsample,
-    scaler=1.,#scaler, # I do not inverse transform in diffstg
-    mean_scaler=0.,#mean_scaler,
+    scaler=scaler, # I do not inverse transform in diffstg
+    mean_scaler=mean_scaler,
     foldername=foldername,
 )
