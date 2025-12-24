@@ -56,7 +56,9 @@ clean_data = CleanDataset(config)
 
 # %%
 test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
-test_loader = torch.utils.data.DataLoader(test_dataset, 8, shuffle=False)
+
+batch_size = 8 if DATASET_NAME == 'electricity_benchmark' else 64
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size, shuffle=False)
 
 # %%
 def predict(model, data_loader, config, clean_data, mode='Test'):
