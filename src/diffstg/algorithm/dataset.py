@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
+import torch
 
 def search_recent_data(train, label_start_idx, T_p, T_h):
     """
@@ -50,10 +51,9 @@ class CleanDataset():
         self.feature_file = config.data.feature_file
         self.val_start_idx = config.data.val_start_idx
         self.adj = np.load(config.data.spatial)
-        self.label, self.feature = self.read_data()
-
         self.train_mean = config.data.mean
         self.train_std = config.data.std
+        self.label, self.feature = self.read_data()
 
         #for stpgcn
         if config.model.get('alpha', None) is not None:
@@ -78,7 +78,7 @@ class CleanDataset():
         else:
             data = np.load(self.feature_file)
         # return data.astype('float32'), self.normalization(data).astype('float32')
-        return self.normalization(data).astype('float64'), self.normalization(data).astype('float64')
+        return self.normalization(data).astype('float32'), self.normalization(data).astype('float32')
 
 
 
@@ -93,7 +93,9 @@ class CleanDataset():
 
     def reverse_normalization(self, x):
         """Get back to interpretable value"""
-        return self.train_mean + self.train_std * x
+        mean = torch.from_numpy(self.train_mean).to(x.device)
+        std = torch.from_numpy(self.train_std).to(x.device)
+        return mean + std * x
 
     # for stpgcn
     def interaction_range_mask(self, hops=2, t_size=3):

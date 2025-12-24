@@ -93,9 +93,9 @@ def default_config(data='AIR_BJ'):
         config.data.val_start_idx = int(3501 * 0.7)
         config.data.test_start_idx = int(3501 * 0.85)
 
-        data = np.load(config.data.feature_file).astype('float64')
-        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0).astype('float64')
-        config.data.std = np.std(data[:config.data.val_start_idx], axis=0).astype('float64') + 1e-9
+        data = np.load(config.data.feature_file).astype(np.float64)
+        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0)
+        config.data.std = np.std(data[:config.data.val_start_idx], axis=0) + 1e-9
 
     if config.data.name == 'electricity_benchmark':
         print('load electricty benchmark settings')
@@ -105,9 +105,9 @@ def default_config(data='AIR_BJ'):
         config.data.val_start_idx = int(25065 * 0.7)
         config.data.test_start_idx = int(25065 * 0.85)
 
-        data = np.load(config.data.feature_file).astype('float64')
-        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0).astype('float64')
-        config.data.std = np.std(data[:config.data.val_start_idx], axis=0).astype('float64') + 1e-9
+        data = np.load(config.data.feature_file).astype(np.float64)
+        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0)
+        config.data.std = np.std(data[:config.data.val_start_idx], axis=0) + 1e-9
 
     gpu_id = GPU().get_usefuel_gpu(max_memory=6000, condidate_gpu_id=[0,1,2,3,4,6,7,8])
     config.gpu_id = gpu_id

@@ -1,0 +1,69 @@
+# baseline
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='conv'
+K=0
+
+# dagg
+DATA='ewz_daily'
+GRAPH_METHOD='dagg'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='conv'
+K=0
+
+# learnable 0.75
+DATA='ewz_daily'
+GRAPH_METHOD='learnable'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='conv'
+K=15 # 65
+
+# learnable 0.8
+DATA='ewz_daily'
+GRAPH_METHOD='learnable'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='conv'
+K=12 # 52
+
+# learnable 0.85
+DATA='ewz_daily'
+GRAPH_METHOD='learnable'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='conv'
+K=9 # 39
+
+# diffconv
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='diffconv'
+TEMPORAL_TYPE='conv'
+K=0
+
+# gatconv
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='gatconv'
+TEMPORAL_TYPE='conv'
+K=0
+
+# lstm
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='lstm'
+K=0
+
+# gru
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='gru'
+K=0
+
+# transformer
+DATA='ewz_daily'
+GRAPH_METHOD='fixed'
+GC_TYPE='vanilla'
+TEMPORAL_TYPE='transformer'
+K=0

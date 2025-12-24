@@ -135,36 +135,36 @@ class Metric(object):
 
 
 # metric for Probabilistic evaluation
-# import torch
-# def quantile_loss(target, forecast, q: float, eval_points) -> float:
-#     return 2 * torch.sum(
-#         torch.abs((forecast - target) * eval_points * ((target <= forecast) * 1.0 - q))
-#     )
+import torch
+def quantile_loss(target, forecast, q: float, eval_points) -> float:
+    return 2 * torch.sum(
+        torch.abs((forecast - target) * eval_points * ((target <= forecast) * 1.0 - q))
+    )
 
-# def calc_denominator(target, eval_points):
-#     return torch.sum(torch.abs(target * eval_points))
+def calc_denominator(target, eval_points):
+    return torch.sum(torch.abs(target * eval_points))
 
 
-# def calc_quantile_CRPS(target, forecast, eval_points):
-#     """
-#     target: (B, T, V), torch.Tensor
-#     forecast: (B, n_sample, T, V), torch.Tensor
-#     eval_points: (B, T, V): which values should be evaluated,
-#     """
+def calc_quantile_CRPS(target, forecast, eval_points):
+    """
+    target: (B, T, V), torch.Tensor
+    forecast: (B, n_sample, T, V), torch.Tensor
+    eval_points: (B, T, V): which values should be evaluated,
+    """
 
-#     # target = target * scaler + mean_scaler
-#     # forecast = forecast * scaler + mean_scaler
-#     quantiles = np.arange(0.05, 1.0, 0.05)
-#     denom = calc_denominator(target, eval_points)
-#     CRPS = 0
-#     for i in range(len(quantiles)):
-#         q_pred = []
-#         for j in range(len(forecast)):
-#             q_pred.append(torch.quantile(forecast[j : j + 1], quantiles[i], dim=1))
-#         q_pred = torch.cat(q_pred, 0)
-#         q_loss = quantile_loss(target, q_pred, quantiles[i], eval_points)
-#         CRPS += q_loss / denom
-#     return CRPS.item() / len(quantiles)
+    # target = target * scaler + mean_scaler
+    # forecast = forecast * scaler + mean_scaler
+    quantiles = np.arange(0.05, 1.0, 0.05)
+    denom = calc_denominator(target, eval_points)
+    CRPS = 0
+    for i in range(len(quantiles)):
+        q_pred = []
+        for j in range(len(forecast)):
+            q_pred.append(torch.quantile(forecast[j : j + 1], quantiles[i], dim=1))
+        q_pred = torch.cat(q_pred, 0)
+        q_loss = quantile_loss(target, q_pred, quantiles[i], eval_points)
+        CRPS += q_loss / denom
+    return CRPS.item() / len(quantiles)
 
 
 def MIS(
@@ -190,142 +190,19 @@ def MIS(
     return numerator
 
 
-# def calc_mis(target, forecast, alpha = 0.05):
-#     """
-#        target: (B, T, V),
-#        forecast: (B, n_sample, T, V)
-#     """
-#     return MIS(
-#         target = target.cpu().numpy(),
-#         lower_quantile = torch.quantile(forecast, alpha / 2, dim=1).cpu().numpy(),
-#         upper_quantile = torch.quantile(forecast, 1.0 - alpha / 2, dim=1).cpu().numpy(),
-#         alpha = alpha,
-#     )
+def calc_mis(target, forecast, alpha = 0.05):
+    """
+       target: (B, T, V),
+       forecast: (B, n_sample, T, V)
+    """
+    return MIS(
+        target = target.cpu().numpy(),
+        lower_quantile = torch.quantile(forecast, alpha / 2, dim=1).cpu().numpy(),
+        upper_quantile = torch.quantile(forecast, 1.0 - alpha / 2, dim=1).cpu().numpy(),
+        alpha = alpha,
+    )
 
 
-if __name__ == "__main__":
-
-    def run_eval(dataset):
-
-        methods = [
-            'diffconv_fixed', 'vanilla_fixed_gru',
-                    'vanilla_fixed',
-                   'vanilla_learnable',
-                   'vanilla_fixed_lstm_4_neighbor',
-                   'vanilla_fixed_transformer_4_neighbor',
-                   'gatconv_fixed_conv_4_neighbor',
-                   'vanilla_dagg_conv_4_neighbor',
-                #    'vanilla_learnable_conv_8_neighbor', 'vanilla_learnable_conv_16_neighbor',
-                #    'vanilla_learnable_static_conv_4_neighbor', 'vanilla_learnable_static_conv_8_neighbor', 'vanilla_learnable_static_conv_16_neighbor',
-                #    'vanilla_learnable_selfloop_conv_4_neighbor', 'vanilla_learnable_selfloop_conv_8_neighbor', 'vanilla_learnable_selfloop_conv_16_neighbor'
-                ]
-        if dataset == 'electricity_benchmark':
-            methods = [
-                # 'vanilla_dagg_conv_0_neighbor',
-                # 'vanilla_fixed_conv_0_neighbor',
-                # 'vanilla_fixed_lstm_0_neighbor',
-                # 'vanilla_learnable_conv_32_neighbor',
-                # 'vanilla_learnable_conv_43_neighbor',
-                # 'vanilla_learnable_conv_54_neighbor',
-
-                "vanilla_fixed"
-
-            ]
-        metrics = {}
-
-
-
-        for m in methods:
-            
-            y_true = np.load(f'../preds/true_{dataset}_{m}.npy')
-            y_pred = np.load(f'../preds/pred_{dataset}_{m}.npy')
-            y_pred = np.mean(y_pred, axis=1)
-
-            # print(y_true.shape, y_pred.shape)
-
-
-            metric = Metric(T_p=1)
-
-            mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
-
-            metrics[m] = {'mae': mae, 'rmse': rmse, 'mse': mse}
-
-        if dataset == 'ewz_daily':
-            y_true_chronos = np.load(f'../preds/{d}_normalized_true_chronos.npy')
-            y_pred_chronos = np.load(f'../preds/{d}_normalized_pred_chronos.npy')
-        else:
-            y_true_chronos = np.load(f'../preds/{d}_true_chronos.npy')
-            y_pred_chronos = np.load(f'../preds/{d}_pred_chronos.npy')
-        mae, rmse, mape, mse = metric.get_metric(y_true_chronos, y_pred_chronos)
-
-        metrics["chronos"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
-
-        # computed in other folder
-
-        # without inverse transform
-
-        if dataset == 'ewz_daily':
-            rmse = 1.1832468519089534
-            mse = rmse ** 2
-            mae = 0.17032654941611178
-            mape = 135.4436335691586
-        else:
-            rmse = 0.23969148635372156
-            mae = 0.15429486885056842
-            mse = rmse ** 2
-
-
-        metrics["CSDI"] = {'mae': mae, 'rmse': rmse, 'mse': mse}
-
-
-        df = pd.DataFrame(metrics)
-
-        if dataset == 'ewz_daily':
-            df.rename(columns={
-                                'vanilla_fixed':'baseline',
-                                'diffconv_fixed':'diffconv',
-                                'vanilla_fixed_gru': 'gru',
-                                'vanilla_fixed_lstm_4_neighbor': 'lstm',
-                                'vanilla_fixed_transformer_4_neighbor': 'transformer',
-                                'gatconv_fixed_conv_4_neighbor': 'gatconv',
-                                'vanilla_dagg_conv_4_neighbor': 'dagg',
-
-                            'vanilla_learnable': '4_k',
-                            #    'vanilla_learnable_conv_8_neighbor': '8_k',
-                            #    'vanilla_learnable_conv_16_neighbor': '16_k',
-                            #     'vanilla_learnable_static_conv_4_neighbor': 'static_4_k',
-                            #     'vanilla_learnable_static_conv_8_neighbor': 'static_8_k',
-                            #     'vanilla_learnable_static_conv_16_neighbor': 'static_16_k',
-
-                            #     'vanilla_learnable_selfloop_conv_4_neighbor': 'selfloop_4_k',
-                            #     'vanilla_learnable_selfloop_conv_8_neighbor': 'selfloop_8_k',
-                            #     'vanilla_learnable_selfloop_conv_16_neighbor': 'selfloop_16_k',
-                            }, inplace=True)
-            
-        else:
-            df.rename(
-                columns={
-                'vanilla_dagg_conv_0_neighbor': 'dagg',
-                'vanilla_fixed_conv_0_neighbor': 'baseline',
-                'vanilla_fixed_lstm_0_neighbor': 'lstm',
-                'vanilla_learnable_conv_32_neighbor': '32_k',
-                'vanilla_learnable_conv_43_neighbor': '43_k',
-                'vanilla_learnable_conv_54_neighbor': '54_k',
-                }, inplace=True
-            )
-        
-        return df
-        
-
-    datasets = ['electricity_benchmark']
-    for d in datasets:
-        df = run_eval(d)
-        df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
-
-
-        print("="*30 + d + "="*30)
-        print(df)
-        print("\n")
 
 
 

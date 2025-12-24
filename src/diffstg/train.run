@@ -8,19 +8,19 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --time=48:00:00
+#SBATCH --time=72:00:00
 
 source /home/maydin/SemesterProject/venv/bin/activate
 
-DATA='electricity_benchmark'
+DATA='ewz_daily'
 GRAPH_METHOD='fixed'
 GC_TYPE='vanilla'
-TEMPORAL_TYPE='lstm'
-K=0
+TEMPORAL_TYPE='transformer'
+K=0 
 
 python3 ./train.py \
   --T_p 1 \
-  --T_h 24 \
+  --T_h 7 \
   --data "$DATA" \
   --epoch 100 \
   --is_test False \
