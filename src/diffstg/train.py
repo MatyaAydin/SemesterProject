@@ -1,7 +1,6 @@
-# ..\..\venv\Scripts\python.exe .\train.py
 
 # -*- coding: utf-8 -*-
-import os, sys
+import os
 import torch
 import argparse
 import numpy as np
@@ -12,12 +11,11 @@ from tqdm import tqdm
 
 from utils.eval import Metric
 from utils.gpu_dispatch import GPU
-from utils.common_utils import dir_check, to_device, ws, unfold_dict, dict_merge, GpuId2CudaId, Logger
+from utils.common_utils import dir_check, to_device, ws, GpuId2CudaId, Logger
 
 from algorithm.dataset import CleanDataset, TrafficDataset
-from algorithm.diffstg.model import DiffSTG, save2file
+from algorithm.diffstg.model import DiffSTG
 
-import matplotlib.pyplot as plt
 import io
 
 
@@ -87,44 +85,6 @@ def default_config(data='AIR_BJ'):
     config.data.spatial = config.data.path + config.data.name + '/adj.npy'
     config.data.num_recent = 1
 
-    if config.data.name == 'PEMS08':
-        config.data.num_features = 1
-        config.data.num_vertices = 170
-        config.data.points_per_hour = 12
-        config.data.val_start_idx = int(17856 * 0.6)
-        config.data.test_start_idx = int(17856 * 0.8)
-
-    if config.data.name == "AIR_BJ":
-        config.data.num_features = 1
-        config.data.num_vertices = 34
-        config.data.points_per_hour = 1
-        config.data.val_start_idx = int(8760 * 0.6)
-        config.data.test_start_idx = int(8760 * 0.8)
-
-    if config.data.name == 'AIR_GZ':
-        config.data.num_features = 1
-        config.data.num_vertices = 41
-        config.data.points_per_hour = 1
-        config.data.val_start_idx = int(8760 * 10 / 12) #
-        config.data.test_start_idx = int(8160 * 11 / 12)
-
-
-    if config.data.name == 'EWZ':
-        print('load EWZ data settings')
-        config.data.num_features = 1
-        config.data.num_vertices = 83
-        config.data.points_per_hour = 4
-        config.data.val_start_idx = int(101915 * 0.6)
-        config.data.test_start_idx = int(101915 * 0.75)
-
-    if config.data.name == 'EWZ_preprocessed':
-        print('load EWZ preprocessed data settings')
-        config.data.num_features = 1
-        config.data.num_vertices = 50
-        config.data.points_per_hour = 1
-        config.data.val_start_idx = int(52888 * 0.7)
-        config.data.test_start_idx = int(52888 * 0.85)
-
     if config.data.name == 'ewz_daily':
         print('load EWZ daily data settings')
         config.data.num_features = 1
@@ -133,6 +93,10 @@ def default_config(data='AIR_BJ'):
         config.data.val_start_idx = int(3501 * 0.7)
         config.data.test_start_idx = int(3501 * 0.85)
 
+        data = np.load(config.data.feature_file).astype('float64')
+        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0).astype('float64')
+        config.data.std = np.std(data[:config.data.val_start_idx], axis=0).astype('float64') + 1e-9
+
     if config.data.name == 'electricity_benchmark':
         print('load electricty benchmark settings')
         config.data.num_features = 1
@@ -140,6 +104,10 @@ def default_config(data='AIR_BJ'):
         config.data.points_per_hour = 1
         config.data.val_start_idx = int(25065 * 0.7)
         config.data.test_start_idx = int(25065 * 0.85)
+
+        data = np.load(config.data.feature_file).astype('float64')
+        config.data.mean = np.mean(data[:config.data.val_start_idx], axis=0).astype('float64')
+        config.data.std = np.std(data[:config.data.val_start_idx], axis=0).astype('float64') + 1e-9
 
     gpu_id = GPU().get_usefuel_gpu(max_memory=6000, condidate_gpu_id=[0,1,2,3,4,6,7,8])
     config.gpu_id = gpu_id

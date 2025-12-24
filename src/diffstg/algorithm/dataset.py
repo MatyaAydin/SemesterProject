@@ -52,6 +52,9 @@ class CleanDataset():
         self.adj = np.load(config.data.spatial)
         self.label, self.feature = self.read_data()
 
+        self.train_mean = config.data.mean
+        self.train_std = config.data.std
+
         #for stpgcn
         if config.model.get('alpha', None) is not None:
             self.alpha = config.model.alpha
@@ -75,7 +78,7 @@ class CleanDataset():
         else:
             data = np.load(self.feature_file)
         # return data.astype('float32'), self.normalization(data).astype('float32')
-        return self.normalization(data).astype('float32'), self.normalization(data).astype('float32')
+        return self.normalization(data).astype('float64'), self.normalization(data).astype('float64')
 
 
 
@@ -83,22 +86,14 @@ class CleanDataset():
 
     def normalization(self, feature):
         """Standard scaler"""
-        train = feature[:self.val_start_idx]
-        # if 'Metro' in self.data_name:
-        #     idx_lst = [i for i in range(train.shape[0]) if i % (24 * 6) >= 7 * 6 - 12]
-        #     train = train[idx_lst]
+        mean = self.train_mean
+        std = self.train_std
 
-        mean = np.mean(train)
-        std = np.std(train)
-
-        # since the feature is actual the flow, the mean and std of feature is also the label's mean and std
-        self.mean = mean
-        self.std = std
         return (feature - mean) / std
 
     def reverse_normalization(self, x):
         """Get back to interpretable value"""
-        return self.mean + self.std * x
+        return self.train_mean + self.train_std * x
 
     # for stpgcn
     def interaction_range_mask(self, hops=2, t_size=3):
