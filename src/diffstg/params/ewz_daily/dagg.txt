@@ -1,0 +1,7 @@
+DATA=ewz_daily
+GRAPH_METHOD=dagg
+GC_TYPE=vanilla
+TEMPORAL_TYPE=conv
+K=0
+T_H=7
+N_SAMPLES=16

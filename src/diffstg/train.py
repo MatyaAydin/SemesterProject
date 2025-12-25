@@ -191,8 +191,8 @@ def evals(model, data_loader, epoch, metric, config, clean_data, mode='Test'):
         x = x.transpose(1, 3)  # (B, F, V, T)
         x_masked = x_masked.transpose(1, 3)  # (B, F, V, T)
 
-        n_samples = 1 if mode == 'Val' else config.n_samples
-        # n_samples = config.n_samples
+        n_samples = (config.n_samples // 4) if mode == 'Val' else config.n_samples
+ 
         if mode == 'Test':
             x_hat, var_hat = model((x_masked, pos_w, pos_d), n_samples) # (B, n_samples, F, V, T)
         else:

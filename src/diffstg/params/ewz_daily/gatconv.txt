@@ -1,0 +1,7 @@
+DATA=ewz_daily
+GRAPH_METHOD=fixed
+GC_TYPE=gatconv
+TEMPORAL_TYPE=conv
+K=0
+T_H=7
+N_SAMPLES=16

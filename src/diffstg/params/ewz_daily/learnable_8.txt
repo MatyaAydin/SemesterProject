@@ -1,0 +1,7 @@
+DATA=ewz_daily
+GRAPH_METHOD=learnable
+GC_TYPE=vanilla
+TEMPORAL_TYPE=conv
+K=12
+T_H=7
+N_SAMPLES=16

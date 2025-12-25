@@ -208,19 +208,25 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         mapping = {
-            "chronos": "chronos",
-            "diffconv_fixed_conv_0_neighbor":"diffconv",
-            "gatconv_fixed_conv_0_neighbor":"gatconv",
+            # "chronos": "chronos",
+            # "diffconv_fixed_conv_0_neighbor":"diffconv",
+            # "gatconv_fixed_conv_0_neighbor":"gatconv",
             "vanilla_dagg_conv_0_neighbor":"dagg",
             "vanilla_fixed_conv_0_neighbor":"baseline",
             "vanilla_fixed_gru_0_neighbor":"gru",
             "vanilla_fixed_lstm_0_neighbor":"lstm",
-            "vanilla_fixed_transformer_0_neighbor":"transformer",
-            "vanilla_learnable_conv_12_neighbor":"0.75",
-            "vanilla_learnable_conv_15_neighbor":"0.8",
-            "vanilla_learnable_conv_9_neighbor":"0.85",
+            # "vanilla_fixed_transformer_0_neighbor":"transformer",
 
         }
+
+        if dataset == 'ewz_daily':
+            neighbors = {"15": "0.75", "12": "0.8", "9": "0.85"}
+
+        else:
+            neighbors = {"65": "0.75", "52": "0.8", "39": "0.85"}
+        for k, v in neighbors.items():
+            mapping[f"vanilla_learnable_conv_{k}_neighbor"] = v
+
 
         methods = mapping.keys()
         metrics = {}
@@ -231,6 +237,8 @@ if __name__ == "__main__":
             if m == "chronos":
                 y_true = np.load(f'./preds/{dataset}_true_{m}.npy')
                 y_pred = np.load(f'./preds/{dataset}_pred_{m}.npy')
+
+                y_pred = np.mean(y_pred, axis=2)
             
             else:
 
@@ -250,19 +258,22 @@ if __name__ == "__main__":
 
         df = pd.DataFrame(metrics)
 
-        if dataset == 'ewz_daily':
-            df.rename(columns=mapping, inplace=True)
+        df.rename(columns=mapping, inplace=True)
+        df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
         
         
         return df
 
-    d = 'ewz_daily'
+    datasets = ["ewz_daily", "electricity_benchmark"]
 
-    df = run_eval(d)
-    df['best_method'] = df.apply(lambda row: row.idxmin(), axis=1)
-    df.to_csv(f'./{d}_results.csv')
+    for d in datasets:
 
-    print(df)
+        print("="*50, d, "="*50)
+
+        df = run_eval(d)
+        df.to_csv(f'./{d}_results.csv')
+
+        print(df)
 
 
 

@@ -1,0 +1,7 @@
+DATA=electricity_benchmark
+GRAPH_METHOD=fixed
+GC_TYPE=gatconv
+TEMPORAL_TYPE=conv
+K=0
+T_H=24
+N_SAMPLES=8
