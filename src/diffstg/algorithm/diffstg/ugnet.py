@@ -250,7 +250,7 @@ class UGnet(nn.Module):
         # for static graph learning
         if self.graph_method == 'learnable_static':
             self.node_embed = NodeEmbedding(config.V, self.d_h)
-        elif self.graph_method == 'dagg':
+        elif 'dagg' in self.graph_method:
             self.node_embed = nn.Parameter(torch.randn(config.V, config.d_h), requires_grad=True)
         else:
             self.node_embed = None
@@ -353,10 +353,15 @@ class UGnet(nn.Module):
 
             supports = torch.stack([a1, a2])
 
-        elif self.graph_method == 'dagg':
+        elif 'dagg' in self.graph_method:
             A = torch.mm(self.node_embed, self.node_embed.transpose(0, 1))
-            a1 = F.softmax(F.relu(A), dim=1) 
+            a1 = F.softmax(F.relu(A), dim=1)
             a2 = F.softmax(F.relu(torch.transpose(A, 0, 1)), dim=1)
+
+            if self.graph_method == 'dagg_I':
+                I = torch.eye(A.size(0)).to(A.device)
+                a1 = a1 + I
+                a2 = a2 + I
             supports = torch.stack([a1, a2])
 
         else:

@@ -11,5 +11,8 @@ output/
 *.pt
 *.dm4stg
 *.pkl
+*.csv
+*.pth
+*.pk
 
 __pycache__/

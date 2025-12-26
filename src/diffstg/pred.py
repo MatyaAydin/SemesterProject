@@ -17,7 +17,7 @@ from algorithm.diffstg.model import DiffSTG, save2file
 import pickle
 
 parser = argparse.ArgumentParser(description='Entry point of the code')
-parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, kearnable_static, dagg
+parser.add_argument("--graph_method", type=str, default='fixed') # fixed, learnable, learnable_static, dagg
 parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv, gatconv or vanilla
 parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm, gru or transformer
 parser.add_argument("--k", type=int, default=4)

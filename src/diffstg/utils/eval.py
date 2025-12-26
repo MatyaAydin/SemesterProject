@@ -208,22 +208,23 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         mapping = {
-            # "chronos": "chronos",
-            # "diffconv_fixed_conv_0_neighbor":"diffconv",
-            # "gatconv_fixed_conv_0_neighbor":"gatconv",
+            "chronos": "chronos",
+            "diffconv_fixed_conv_0_neighbor":"diffconv",
+            "gatconv_fixed_conv_0_neighbor":"gatconv",
             "vanilla_dagg_conv_0_neighbor":"dagg",
+            "vanilla_dagg_I_conv_0_neighbor":"dagg_I",
             "vanilla_fixed_conv_0_neighbor":"baseline",
             "vanilla_fixed_gru_0_neighbor":"gru",
             "vanilla_fixed_lstm_0_neighbor":"lstm",
-            # "vanilla_fixed_transformer_0_neighbor":"transformer",
+            "vanilla_fixed_transformer_0_neighbor":"transformer",
 
         }
 
         if dataset == 'ewz_daily':
-            neighbors = {"15": "0.75", "12": "0.8", "9": "0.85"}
+            neighbors = {"15": "0.75", "12": "0.8", "9": "0.85", "6": "0.9", "3": "0.95"}
 
         else:
-            neighbors = {"65": "0.75", "52": "0.8", "39": "0.85"}
+            neighbors = {"65": "0.75", "52": "0.8", "39": "0.85", "26": "0.9", "13": "0.95"}
         for k, v in neighbors.items():
             mapping[f"vanilla_learnable_conv_{k}_neighbor"] = v
 
@@ -238,7 +239,7 @@ if __name__ == "__main__":
                 y_true = np.load(f'./preds/{dataset}_true_{m}.npy')
                 y_pred = np.load(f'./preds/{dataset}_pred_{m}.npy')
 
-                y_pred = np.mean(y_pred, axis=2)
+                # y_pred = np.mean(y_pred, axis=2)
             
             else:
 
@@ -264,7 +265,7 @@ if __name__ == "__main__":
         
         return df
 
-    datasets = ["ewz_daily", "electricity_benchmark"]
+    datasets = ["ewz_daily"]
 
     for d in datasets:
 
