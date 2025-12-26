@@ -40,11 +40,12 @@ class DifferentiableKnnGraphLayer(nn.Module):
                  sparsify_gradient=False,
                  at_most_k=False,
                  gradient_sparsity=0.9,
-                 mode=None):
+                 mode=None,
+                 mode_k='learnable'):
         super(DifferentiableKnnGraphLayer, self).__init__()
         self.k = k
         self.tau = tau
-        self.sampler = StraightThroughSubsetSampler(self.k, self.tau)
+        self.sampler = StraightThroughSubsetSampler(self.k, self.tau, mode=mode_k)
 
         self.n_dummies = self.k - 1 if at_most_k else 0
         self.n_nodes = n_nodes

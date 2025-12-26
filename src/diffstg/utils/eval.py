@@ -213,6 +213,7 @@ if __name__ == "__main__":
             "gatconv_fixed_conv_0_neighbor":"gatconv",
             "vanilla_dagg_conv_0_neighbor":"dagg",
             "vanilla_dagg_I_conv_0_neighbor":"dagg_I",
+            "vanilla_learnable_nucleus_conv_90_neighbor":"nucleus_90",
             "vanilla_fixed_conv_0_neighbor":"baseline",
             "vanilla_fixed_gru_0_neighbor":"gru",
             "vanilla_fixed_lstm_0_neighbor":"lstm",

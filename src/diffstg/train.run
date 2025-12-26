@@ -13,24 +13,24 @@
 source /home/maydin/SemesterProject/venv/bin/activate
 
 DATA='electricity_benchmark'
-GRAPH_METHOD='dagg_I'
+GRAPH_METHOD='learnable'
 GC_TYPE='vanilla'
 TEMPORAL_TYPE='conv'
-K=0
+K=26
 T_H=24
 N_SAMPLES=8
 
-python3 ./train.py \
-  --T_p 1 \
-  --T_h "$T_H" \
-  --n_samples "$N_SAMPLES" \
-  --data "$DATA" \
-  --epoch 100 \
-  --is_test False \
-  --graph_method "$GRAPH_METHOD" \
-  --gc_type "$GC_TYPE" \
-  --temporal_type "$TEMPORAL_TYPE" \
-  --k "$K"
+# python3 ./train.py \
+#   --T_p 1 \
+#   --T_h "$T_H" \
+#   --n_samples "$N_SAMPLES" \
+#   --data "$DATA" \
+#   --epoch 100 \
+#   --is_test False \
+#   --graph_method "$GRAPH_METHOD" \
+#   --gc_type "$GC_TYPE" \
+#   --temporal_type "$TEMPORAL_TYPE" \
+#   --k "$K"
 
 
 python3 ./pred.py \

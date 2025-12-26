@@ -298,14 +298,15 @@ class UGnet(nn.Module):
                                  nn.Linear(2 * T, T),)
         
         # graph learning initialization
-        if config.graph_method == 'learnable':
+        if 'learnable' in config.graph_method:
             self.graph_learning_module = DifferentiableKnnGraphLayer(
                 n_nodes=config.V,
                 k=config.k,
                 tau=1,
                 sparsify_gradient=False,
                 at_most_k=False,
-                mode = "diffSTG"
+                mode="diffSTG",
+                mode_k=config.graph_method
             )
         else:
             self.graph_learning_module = None
@@ -336,7 +337,7 @@ class UGnet(nn.Module):
 
         h = [x]
 
-        if self.graph_method == 'learnable':
+        if 'learnable' in self.graph_method:
             A = self.graph_learning_module(x, None) # (B, V, V)
 
             a1 = asym_adj_torch(A)
