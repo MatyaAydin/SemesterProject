@@ -208,12 +208,12 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         mapping = {
-            "chronos": "chronos",
-            "diffconv_fixed_conv_0_neighbor":"diffconv",
-            "gatconv_fixed_conv_0_neighbor":"gatconv",
+            # "chronos": "chronos",
+            # "diffconv_fixed_conv_0_neighbor":"diffconv",
+            # "gatconv_fixed_conv_0_neighbor":"gatconv",
             "vanilla_dagg_conv_0_neighbor":"dagg",
             "vanilla_dagg_I_conv_0_neighbor":"dagg_I",
-            "vanilla_learnable_nucleus_conv_90_neighbor":"nucleus_90",
+            # "vanilla_learnable_nucleus_conv_90_neighbor":"nucleus_90",
             "vanilla_fixed_conv_0_neighbor":"baseline",
             "vanilla_fixed_gru_0_neighbor":"gru",
             "vanilla_fixed_lstm_0_neighbor":"lstm",
@@ -246,14 +246,23 @@ if __name__ == "__main__":
 
                 y_true = np.load(f'./preds/true_{dataset}_{m}.npy')
                 y_pred = np.load(f'./preds/pred_{dataset}_{m}.npy')
-                y_pred = np.mean(y_pred, axis=1)
+                # y_pred = np.mean(y_pred, axis=1)
 
 
             metric = Metric(T_p=1)
 
+            # target = torch.from_numpy(y_true.squeeze(1).squeeze(-1)).unsqueeze(0)  # (T, V) → (1, T, V)
+
+            # For forecast: (T, n_sample, 1, V, 1) → (1, n_sample, T, V)
+            # Remove dimension at index 2 and 4 (the ones that are size 1)
+            # forecast = torch.from_numpy(y_pred.squeeze(2).squeeze(-1))  # (T, n_sample, V)
+            # forecast = forecast.permute(1, 0, 2).unsqueeze(0)  # (n_sample, T, V) → (1, n_sample, T, V)
+            y_pred = np.mean(y_pred, axis=1)
             mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
 
-            metrics[m] = {'mae': mae, 'rmse': rmse, 'mse': mse}
+            # crps = calc_quantile_CRPS(target, forecast, torch.ones_like(target))
+
+            metrics[m] = {'mae': mae, 'rmse': rmse}
 
 
 
@@ -266,7 +275,7 @@ if __name__ == "__main__":
         
         return df
 
-    datasets = ["ewz_daily"]
+    datasets = ["electricity_benchmark"]
 
     for d in datasets:
 

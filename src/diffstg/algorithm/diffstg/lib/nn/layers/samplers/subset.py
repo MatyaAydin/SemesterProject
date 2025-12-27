@@ -77,7 +77,7 @@ class StraightThroughSubsetSampler(nn.Module):
         super(StraightThroughSubsetSampler, self).__init__()
         self.k = k
         self.tau = tau
-        # self.mode = mode
+        self.mode = mode
 
     def forward(self, scores, inference_mode=False):
         if self.mode == 'learnable':

@@ -12,25 +12,25 @@
 
 source /home/maydin/SemesterProject/venv/bin/activate
 
-DATA='electricity_benchmark'
-GRAPH_METHOD='learnable'
+DATA='ewz_daily'
+GRAPH_METHOD='learnable_nucleus'
 GC_TYPE='vanilla'
 TEMPORAL_TYPE='conv'
-K=26
-T_H=24
-N_SAMPLES=8
+K=85
+T_H=7
+N_SAMPLES=16
 
-# python3 ./train.py \
-#   --T_p 1 \
-#   --T_h "$T_H" \
-#   --n_samples "$N_SAMPLES" \
-#   --data "$DATA" \
-#   --epoch 100 \
-#   --is_test False \
-#   --graph_method "$GRAPH_METHOD" \
-#   --gc_type "$GC_TYPE" \
-#   --temporal_type "$TEMPORAL_TYPE" \
-#   --k "$K"
+python3 ./train.py \
+  --T_p 1 \
+  --T_h "$T_H" \
+  --n_samples "$N_SAMPLES" \
+  --data "$DATA" \
+  --epoch 100 \
+  --is_test False \
+  --graph_method "$GRAPH_METHOD" \
+  --gc_type "$GC_TYPE" \
+  --temporal_type "$TEMPORAL_TYPE" \
+  --k "$K"
 
 
 python3 ./pred.py \
