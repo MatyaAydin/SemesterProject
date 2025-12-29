@@ -28,7 +28,7 @@ pip install -r requirements.txt
 #### Code structure
 
 ```
-CS-439-miniproject/
+SemesterProject/
 ├── src/
    |
    ├── preprocessing/ # Scripts to create datasets
@@ -53,6 +53,15 @@ python3 ./exe_forecasting.py --datatype "electricity_benchmark" --modelfolder "f
 
 ```
 
+Chronos results:
+
+```bash
+
+cd chronos
+
+python3 pred_chronos.py
+```
+
 DiffSTG results for all models:
 
 ```bash
@@ -69,5 +78,4 @@ To get a csv with all metrics:
 cd diffstg/utils
 
 python3 eval.py
-
 ```
