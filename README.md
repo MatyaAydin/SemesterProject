@@ -4,13 +4,7 @@
 
 Done with IMOS Lab at EPFL in collaboration with EWZ Zurich
 
-#### Project stages:
 
-1. Data Cleaning and Preprocessing
-2. Graph Construction Based on Physical Poximity
-3. Trying Some Baseline Graph Neural Networks (GNNs) with Physical Graph + Provide Comparison with other Graph Learning method
-4. Pick the best graph (from stage 3) for Denoising Diffusion Probabilistic Model (DDPM)
-5. Do Forecasting by Graph-Based DDPM and Anomaly Detection of Sensor Data
 
 
 ### Dependencies
@@ -28,7 +22,6 @@ pip install -r requirements.txt
 
 ### Repo structure
 
-* `notes`: Notes taken while reading papers/during meetings
 * `src`: Code
 * `data`: Datasets
 
@@ -37,7 +30,8 @@ pip install -r requirements.txt
 ```
 CS-439-miniproject/
 ├── src/
-   ├── scalar/     # GNN without diffusion                     
+   |
+   ├── preprocessing/ # Scripts to create datasets
    │
    ├── diffstg/    # Diffusion-STG code
    │
@@ -47,12 +41,33 @@ CS-439-miniproject/
 
 ```
 
-### Other resources
+#### Reproducibility
 
-* [Article about spatio-temporal forecasting using GNNs](https://medium.com/data-reply-it-datatech/spatio-temporal-forecasting-using-temporal-graph-neural-networks-f27a8b326e5c)
-* [Electricity dataset from Energy and AI paper](https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014)
-* [Pytorch geometric temporal notebook](https://colab.research.google.com/drive/132hNQ0voOtTVk3I4scbD3lgmPTQub0KR?usp=sharing)
-* [Repo with links to paper about GNNs for fraud detection](https://github.com/safe-graph/graph-fraud-detection-papers)
-* [DiffSTG repo](https://github.com/wenhaomin/DiffSTG)
-* [TSL doc](https://torch-spatiotemporal.readthedocs.io/en/latest/)
-* [Optuna + pytorch lightning](https://machinelearningmastery.com/pytorch-lightning-hyperparameter-optimization-with-optuna/)
+CSDI results:
+
+```bash
+
+cd CSDI
+
+python3 ./exe_forecasting.py --datatype "electricity_benchmark" --modelfolder "forecasting_electricity_benchmark" --nsample 8 # or ewz_daily
+
+```
+
+DiffSTG results for all models:
+
+```bash
+
+cd diffstg
+
+bash train_all.sh
+```
+
+To get a csv with all metrics:
+
+```bash
+
+cd diffstg/utils
+
+python3 eval.py
+
+```

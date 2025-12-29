@@ -10,8 +10,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = torch.load(model_path, map_location=device, weights_only=False)
 
 A = torch.mm(model.eps_model.node_embed, model.eps_model.node_embed.transpose(0, 1))
-a1 = F.softmax(F.relu(A), dim=1)
+# a1 = F.softmax(F.relu(A), dim=1)
+a1 = F.relu(A)
 
 adj_numpy = a1.cpu().detach().numpy()
 
-np.save("./dagg_I_electricity_benchmark_adj.npy", adj_numpy)
+np.save("./dagg_I_electricity_benchmark_nosoftmax_adj.npy", adj_numpy)

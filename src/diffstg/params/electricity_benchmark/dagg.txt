@@ -1,5 +1,5 @@
 DATA=electricity_benchmark
-GRAPH_METHOD=dagg
+GRAPH_METHOD=dagg_I
 GC_TYPE=vanilla
 TEMPORAL_TYPE=conv
 K=0

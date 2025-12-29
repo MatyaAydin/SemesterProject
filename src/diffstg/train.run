@@ -13,28 +13,30 @@
 source /home/maydin/SemesterProject/venv/bin/activate
 
 DATA='ewz_daily'
-GRAPH_METHOD='learnable_nucleus'
-GC_TYPE='vanilla'
+GRAPH_METHOD='fixed'
+GC_TYPE='diffconv'
 TEMPORAL_TYPE='conv'
-K=85
+K=0
 T_H=7
 N_SAMPLES=16
+T_P=2
 
-python3 ./train.py \
-  --T_p 1 \
-  --T_h "$T_H" \
-  --n_samples "$N_SAMPLES" \
-  --data "$DATA" \
-  --epoch 100 \
-  --is_test False \
-  --graph_method "$GRAPH_METHOD" \
-  --gc_type "$GC_TYPE" \
-  --temporal_type "$TEMPORAL_TYPE" \
-  --k "$K"
+# python3 ./train.py \
+#   --T_p "$T_P" \
+#   --T_h "$T_H" \
+#   --n_samples "$N_SAMPLES" \
+#   --data "$DATA" \
+#   --epoch 100 \
+#   --is_test False \
+#   --graph_method "$GRAPH_METHOD" \
+#   --gc_type "$GC_TYPE" \
+#   --temporal_type "$TEMPORAL_TYPE" \
+#   --k "$K"
 
 
 python3 ./pred.py \
   --data "$DATA" \
+  --T_p "$T_P" \
   --graph_method "$GRAPH_METHOD" \
   --gc_type "$GC_TYPE" \
   --temporal_type "$TEMPORAL_TYPE" \

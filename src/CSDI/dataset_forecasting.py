@@ -34,20 +34,6 @@ class Forecasting_Dataset(Dataset):
 
             self.main_data = data.reshape(T, N)
             self.mask_data = np.ones_like(self.main_data)
-
-
-        if datatype == "PEMS08":
-            data = np.load("./data/PEMS08/flow.npy")
-            T, N, _ = data.shape
-
-            self.test_length= int(0.15 * T)
-            self.valid_length = int(0.15 * T)
-
-            self.history_length = 12
-            self.pred_length = 12
-
-            self.main_data = data.reshape(T, N)
-            self.mask_data = np.ones_like(self.main_data)
         
         if datatype == "electricity_benchmark":
             data = np.load("./data/electricity_benchmark/flow.npy")

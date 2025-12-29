@@ -32,8 +32,6 @@ if args.datatype == 'ewz_daily':
 elif args.datatype == 'electricity_benchmark':
     target_dim = 261
 
-elif args.datatype == 'PEMS08':
-    target_dim = 170
 
 else:
     target_dim = 370
@@ -74,7 +72,7 @@ evaluate(
     model,
     test_loader,
     nsample=args.nsample,
-    scaler=1.,#scaler,
-    mean_scaler=0.,#mean_scaler,
+    scaler=scaler,
+    mean_scaler=mean_scaler,
     foldername=foldername,
 )

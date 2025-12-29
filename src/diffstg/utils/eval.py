@@ -208,12 +208,11 @@ if __name__ == "__main__":
     def run_eval(dataset):
 
         mapping = {
-            # "chronos": "chronos",
+            "chronos": "chronos",
             # "diffconv_fixed_conv_0_neighbor":"diffconv",
-            # "gatconv_fixed_conv_0_neighbor":"gatconv",
+            "gatconv_fixed_conv_0_neighbor":"gatconv",
             "vanilla_dagg_conv_0_neighbor":"dagg",
             "vanilla_dagg_I_conv_0_neighbor":"dagg_I",
-            # "vanilla_learnable_nucleus_conv_90_neighbor":"nucleus_90",
             "vanilla_fixed_conv_0_neighbor":"baseline",
             "vanilla_fixed_gru_0_neighbor":"gru",
             "vanilla_fixed_lstm_0_neighbor":"lstm",
@@ -221,48 +220,60 @@ if __name__ == "__main__":
 
         }
 
+
         if dataset == 'ewz_daily':
             neighbors = {"15": "0.75", "12": "0.8", "9": "0.85", "6": "0.9", "3": "0.95"}
+            mapping["diffconv_fixed_conv_0_neighbor"] = "diffconv"
 
         else:
             neighbors = {"65": "0.75", "52": "0.8", "39": "0.85", "26": "0.9", "13": "0.95"}
         for k, v in neighbors.items():
             mapping[f"vanilla_learnable_conv_{k}_neighbor"] = v
 
+        # mapping = {
+        #     "diffconv_fixed_conv_0_neighbor":"diffconv",
+        #     "diffconv_fixed_conv_0_neighbor_2_horizon":"diffconv_2",
+        #     "diffconv_fixed_conv_0_neighbor_3_horizon":"diffconv_3",
+
+        # }
+
 
         methods = mapping.keys()
         metrics = {}
 
+        horizon = False
 
-        for m in methods:
+
+        for pred_length, m in enumerate(methods):
 
             if m == "chronos":
-                y_true = np.load(f'./preds/{dataset}_true_{m}.npy')
-                y_pred = np.load(f'./preds/{dataset}_pred_{m}.npy')
+                y_true = np.load(f'./preds/raw_{dataset}_true_{m}.npy') # (V, F, T)
+                y_pred = np.load(f'./preds/raw_{dataset}_pred_{m}.npy') # (V, F, n_samples, T)
 
-                # y_pred = np.mean(y_pred, axis=2)
+                y_true = np.transpose(y_true, (2,1,0))  # (T, F, V)
+                y_pred = np.transpose(y_pred, (3,2,1,0))  # (T, F, V, n_samples)
+
             
             else:
 
-                y_true = np.load(f'./preds/true_{dataset}_{m}.npy')
-                y_pred = np.load(f'./preds/pred_{dataset}_{m}.npy')
-                # y_pred = np.mean(y_pred, axis=1)
+                y_true = np.load(f'./preds/true_{dataset}_{m}.npy') # (T, F, V, T_p)
+                y_pred = np.load(f'./preds/pred_{dataset}_{m}.npy') # (T, n_samples, F, V, T_p)
 
 
-            metric = Metric(T_p=1)
+            metric = Metric(T_p=pred_length + 1 if horizon else 1)
 
-            # target = torch.from_numpy(y_true.squeeze(1).squeeze(-1)).unsqueeze(0)  # (T, V) → (1, T, V)
 
-            # For forecast: (T, n_sample, 1, V, 1) → (1, n_sample, T, V)
-            # Remove dimension at index 2 and 4 (the ones that are size 1)
-            # forecast = torch.from_numpy(y_pred.squeeze(2).squeeze(-1))  # (T, n_sample, V)
-            # forecast = forecast.permute(1, 0, 2).unsqueeze(0)  # (n_sample, T, V) → (1, n_sample, T, V)
+            target = torch.from_numpy(y_true)  # (B, T, V)
+            forecast = torch.from_numpy(y_pred)  # (B, n_sample, T, V)
+            eval_points = torch.ones_like(target)
+
+            crps = calc_quantile_CRPS(target, forecast, torch.ones_like(target))
+
             y_pred = np.mean(y_pred, axis=1)
             mae, rmse, mape, mse = metric.get_metric(y_true, y_pred)
 
-            # crps = calc_quantile_CRPS(target, forecast, torch.ones_like(target))
 
-            metrics[m] = {'mae': mae, 'rmse': rmse}
+            metrics[m] = {'mae': mae, 'rmse': rmse, 'crps': crps}
 
 
 
@@ -275,7 +286,7 @@ if __name__ == "__main__":
         
         return df
 
-    datasets = ["electricity_benchmark"]
+    datasets = ["ewz_daily", "electricity_benchmark"]
 
     for d in datasets:
 

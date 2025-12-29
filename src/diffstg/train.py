@@ -60,7 +60,7 @@ def get_params():
 
     # train
     parser.add_argument("--is_train", type=bool, default=True) # train or evaluate
-    parser.add_argument("--data", type=str, default='PEMS08')
+    parser.add_argument("--data", type=str, default='ewz_daily')
     parser.add_argument("--mask_ratio", type=float, default=0.0) # mask of history data
     parser.add_argument("--is_test", type=bool, default=True)
     parser.add_argument("--nni", type=bool, default=False)
@@ -349,7 +349,7 @@ def main(params: dict):
     metrics_val = Metric(T_p=config.model.T_h + config.model.T_p)
 
 
-    model_path = config.PATH_MOD + f'{config.data.name}_{config.model.graph_method}_{config.model.gc_type}_{config.model.temporal_type}_{config.model.k}_neighbor.dm4stg'
+    model_path = config.PATH_MOD + f'{config.data.name}_{config.model.graph_method}_{config.model.gc_type}_{config.model.temporal_type}_{config.model.k}_neighbor_{config.model.T_p}_horizon.dm4stg'
     config.model_path = model_path
     config.logger.write(f"model path:{model_path}\n", is_terminal=False)
     print('model_path:', model_path)
@@ -363,7 +363,7 @@ def main(params: dict):
     import pickle
     config_savable = {k: v for k, v in config.items() if not isinstance(v, io.TextIOBase) and k != 'logger'}
 
-    with open(f'./configs/config_{config.data.name}_{config.model.gc_type}_{config.model.graph_method}_{config.model.temporal_type}_{config.model.k}_neighbor.pkl', 'wb') as f:
+    with open(f'./configs/config_{config.data.name}_{config.model.gc_type}_{config.model.graph_method}_{config.model.temporal_type}_{config.model.k}_neighbor_{config.model.T_p}_horizon.pkl', 'wb') as f:
         pickle.dump(config_savable, f)
 
 

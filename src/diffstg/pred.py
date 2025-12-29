@@ -22,6 +22,7 @@ parser.add_argument("--gc_type", type=str, default='vanilla') # diffconv, gatcon
 parser.add_argument("--temporal_type", type=str, default='conv') # conv, lstm, gru or transformer
 parser.add_argument("--k", type=int, default=4)
 parser.add_argument("--data", type=str, default='PEMS08')
+parser.add_argument("--T_p", type=int, default=1)
 
 args, _ = parser.parse_known_args()
 args_dict = vars(args)
@@ -31,10 +32,11 @@ GRAPH_METHOD = args_dict['graph_method']
 DATASET_NAME = args_dict['data']
 TEMPORAL_TYPE = args_dict['temporal_type']
 K_NEIGHBORS = f'_{args_dict["k"]}_neighbor'
+T_P = args_dict['T_p']
 
 
 # %%
-trained_model_path = f'./output/model/{DATASET_NAME}_{GRAPH_METHOD}_{GC_TYPE}_{TEMPORAL_TYPE}{K_NEIGHBORS}.dm4stg'
+trained_model_path = f'./output/model/{DATASET_NAME}_{GRAPH_METHOD}_{GC_TYPE}_{TEMPORAL_TYPE}{K_NEIGHBORS}_{T_P}_horizon.dm4stg'
 DATA_path = f'./data/dataset/{DATASET_NAME}/'
 flow_path = os.path.join(DATA_path, 'flow.npy')
 adj_path = os.path.join(DATA_path, 'adj.npy')
@@ -49,7 +51,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = torch.load(trained_model_path, map_location=device, weights_only=False)
 
-with open(f'./configs/config_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.pkl', 'rb') as f:
+with open(f'./configs/config_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}_{T_P}_horizon.pkl', 'rb') as f:
     config = edict(pickle.load(f))
 
 clean_data = CleanDataset(config)
@@ -119,8 +121,8 @@ def predict(model, data_loader, config, clean_data, mode='Test'):
 # %%
 y_true, y_pred = predict(model, test_loader, config, clean_data, mode='Val')
 print('computed predictions')
-np.save(f'./preds/pred_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_pred)
-np.save(f'./preds/true_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}.npy', y_true)
+np.save(f'./preds/pred_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}_{T_P}_horizon.npy', y_pred)
+np.save(f'./preds/true_{DATASET_NAME}_{GC_TYPE}_{GRAPH_METHOD}_{TEMPORAL_TYPE}{K_NEIGHBORS}_{T_P}_horizon.npy', y_true)
 
 
 
